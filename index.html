@@ -1,0 +1,2915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0b0c10">
+<title>Communication OS</title>
+<style>
+/* ============================================================
+   COMMUNICATION OS — v1.0.0
+   Premium dark SaaS aesthetic. Developer-identity sidebar,
+   modern dashboard content. Offline. No dependencies.
+   ============================================================ */
+
+:root{
+  /* Surfaces */
+  --bg:#0b0c10;
+  --sidebar:#0e1014;
+  --content:#0f1116;
+  --surface:#16181f;
+  --surface-2:#1b1e27;
+  --surface-3:#222633;
+  --hover:rgba(255,255,255,.04);
+
+  /* Lines */
+  --border:rgba(255,255,255,.07);
+  --border-2:rgba(255,255,255,.11);
+
+  /* Text */
+  --text:#e8eaf0;
+  --text-2:#a5aab8;
+  --text-3:#6c7280;
+
+  /* Brand */
+  --accent:#4ec9b0;
+  --accent-2:#7c9dff;
+  --accent-3:#b98cff;
+  --success:#57c98a;
+  --warning:#e8c37e;
+  --error:#f0736f;
+
+  /* Tiers */
+  --t1:#4ec9b0; --t2:#67d3ff; --t3:#9aa2b1; --t4:#e8c37e; --t5:#f0736f;
+
+  /* Effects */
+  --grad-hero:linear-gradient(135deg,rgba(78,201,176,.20),rgba(124,157,255,.15) 52%,rgba(185,140,255,.13));
+  --grad-accent:linear-gradient(135deg,#4ec9b0,#54cfc0);
+  --grad-ring:linear-gradient(135deg,#4ec9b0,#7c9dff);
+  --ring-track:rgba(255,255,255,.08);
+  --sh-sm:0 1px 2px rgba(0,0,0,.35);
+  --sh:0 8px 24px rgba(0,0,0,.28);
+  --sh-lg:0 24px 60px rgba(0,0,0,.5);
+  --glow:0 0 0 1px rgba(78,201,176,.35),0 8px 30px rgba(78,201,176,.18);
+
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+  --mono:"SFMono-Regular",ui-monospace,Consolas,Menlo,monospace;
+
+  --sidebar-w:266px;
+  --fs:16.5px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:var(--font);font-size:var(--fs);line-height:1.65;
+  height:100vh;overflow:hidden;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+.mono,code{font-family:var(--mono);}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+button{font-family:inherit;cursor:pointer;color:inherit;}
+::selection{background:rgba(78,201,176,.28);}
+
+::-webkit-scrollbar{width:11px;height:11px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.09);border-radius:8px;border:3px solid transparent;background-clip:content-box;}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.16);background-clip:content-box;}
+
+/* ============================================================ LAYOUT */
+.app{
+  display:grid;
+  grid-template-columns:var(--sidebar-w) 1fr;
+  grid-template-rows:44px 1fr 30px;
+  grid-template-areas:"title title" "side editor" "status status";
+  height:100vh;background:var(--bg);
+}
+
+/* ---- Title bar ---- */
+.titlebar{
+  grid-area:title;display:flex;align-items:center;gap:13px;padding:0 16px;
+  background:rgba(14,16,20,.9);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);user-select:none;
+}
+.traffic{display:flex;gap:8px;}
+.traffic span{width:12px;height:12px;border-radius:50%;}
+.traffic .r{background:#ff5f57;}.traffic .y{background:#febc2e;}.traffic .g{background:#28c840;}
+.brand{display:flex;align-items:center;gap:9px;}
+.brand .logo{width:20px;height:20px;border-radius:6px;background:var(--grad-ring);box-shadow:var(--sh-sm);}
+.filetitle{font-weight:650;font-size:14.5px;letter-spacing:-.01em;}
+.filetitle b{color:var(--accent);font-weight:750;}
+.ver{font-family:var(--mono);font-size:11px;color:var(--text-3);padding:2px 7px;border-radius:6px;background:var(--surface);}
+.spacer{flex:1;}
+.cmdk-hint{
+  display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-2);
+  background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:6px 11px;transition:.15s;
+}
+.cmdk-hint:hover{border-color:var(--border-2);color:var(--text);}
+.hamburger{display:none;background:none;border:none;font-size:20px;padding:4px 8px;line-height:1;}
+
+/* ---- Sidebar ---- */
+.sidebar{
+  grid-area:side;background:var(--sidebar);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.side-search{padding:14px 14px 10px;}
+.side-search input{
+  width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);
+  font-size:13.5px;padding:10px 13px;border-radius:11px;outline:none;transition:.15s;
+}
+.side-search input:focus{border-color:var(--border-2);background:var(--surface-2);}
+.side-search input::placeholder{color:var(--text-3);}
+.side-scroll{overflow-y:auto;flex:1;padding:4px 0 24px;}
+
+.nav-group{margin-bottom:6px;}
+.nav-head{
+  display:flex;align-items:center;gap:8px;width:100%;background:none;border:none;text-align:left;
+  color:var(--text-3);font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  padding:10px 18px 6px;
+}
+.nav-head .chev{font-size:9px;transition:transform .15s;width:9px;}
+.nav-group.collapsed .chev{transform:rotate(-90deg);}
+.nav-group.collapsed .nav-items{display:none;}
+.nav-items{display:flex;flex-direction:column;gap:1px;}
+
+.nav-item{
+  position:relative;display:flex;align-items:center;gap:11px;width:auto;margin:1px 8px;
+  background:none;border:none;text-align:left;color:var(--text-2);font-size:14.5px;
+  padding:9px 12px;border-radius:10px;min-height:38px;transition:background .12s,color .12s;
+}
+.nav-item .ico{width:18px;text-align:center;flex-shrink:0;font-size:14px;opacity:.95;}
+.nav-item:hover{background:var(--hover);color:var(--text);}
+.nav-item.active{background:var(--surface-2);color:#fff;box-shadow:var(--sh-sm);}
+.nav-item.active::before{content:"";position:absolute;left:-2px;top:9px;bottom:9px;width:3px;border-radius:3px;background:var(--grad-ring);}
+.nav-item.sub{padding-left:20px;font-size:13.5px;color:var(--text-3);min-height:34px;margin:1px 10px;}
+.nav-item.sub .ico{font-size:10px;opacity:.5;}
+.nav-item.sub:hover{color:var(--text-2);}
+.nav-item.sub.active{color:#fff;background:var(--surface-2);}
+.nav-item .badge{margin-left:auto;font-size:11px;color:var(--success);}
+
+/* ---- Editor / content ---- */
+.editor{grid-area:editor;display:flex;flex-direction:column;background:var(--content);overflow:hidden;min-width:0;}
+.tabbar{display:none;}
+.breadcrumbs{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;height:52px;flex-shrink:0;
+  padding:0 34px;font-size:13px;border-bottom:1px solid var(--border);
+  background:rgba(15,17,22,.75);backdrop-filter:blur(8px);
+}
+.breadcrumbs .crumb{color:var(--text-2);}
+.breadcrumbs .sep{color:var(--text-3);font-size:11px;}
+.breadcrumbs .crumb.cur{color:var(--text);font-weight:600;}
+
+.editor-scroll{overflow-y:auto;flex:1;scroll-behavior:smooth;}
+.view{max-width:1000px;margin:0 auto;padding:34px 34px 120px;}
+
+/* ---- Status bar (quiet, ambient) ---- */
+.statusbar{
+  grid-area:status;background:var(--sidebar);border-top:1px solid var(--border);
+  display:flex;align-items:center;font-size:12px;color:var(--text-3);user-select:none;
+}
+.statusbar .seg{display:flex;align-items:center;gap:6px;padding:0 13px;height:100%;transition:.12s;}
+.statusbar .seg:hover{color:var(--text-2);background:var(--hover);}
+.statusbar .seg.muted{color:var(--text-3);}
+.statusbar .spacer{flex:1;}
+
+/* ============================================================ TYPOGRAPHY */
+.h-page{font-size:30px;font-weight:800;letter-spacing:-.02em;margin-bottom:8px;display:flex;align-items:center;gap:13px;flex-wrap:wrap;}
+.h-section{font-size:19px;font-weight:750;letter-spacing:-.01em;margin:38px 0 16px;}
+.h-sub{font-size:16px;font-weight:700;color:var(--text);margin:22px 0 9px;}
+.lede{color:var(--text-2);font-size:16px;max-width:72ch;margin-bottom:26px;}
+p{margin-bottom:13px;}
+.view p{max-width:74ch;color:var(--text-2);}
+.muted{color:var(--text-2);}
+.faint{color:var(--text-3);}
+strong,b{color:var(--text);font-weight:650;}
+.hl{background:rgba(78,201,176,.16);color:var(--accent);border-radius:4px;padding:1px 5px;font-weight:600;}
+
+/* ============================================================ HERO (dashboard) */
+.hero{
+  position:relative;overflow:hidden;border-radius:22px;padding:32px 34px;margin-bottom:24px;
+  background:var(--grad-hero),var(--surface);border:1px solid var(--border);box-shadow:var(--sh);
+  display:flex;gap:28px;align-items:center;justify-content:space-between;
+}
+.hero::after{content:"";position:absolute;inset:0;background:radial-gradient(120% 140% at 100% 0%,rgba(124,157,255,.14),transparent 60%);pointer-events:none;}
+.hero-main{position:relative;z-index:1;max-width:60ch;}
+.hero-eyebrow{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;}
+.hero-title{font-size:32px;font-weight:800;letter-spacing:-.02em;line-height:1.15;margin-bottom:12px;}
+.hero-sub{font-size:16px;color:var(--text-2);margin-bottom:22px;max-width:52ch;}
+.hero-actions{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:center;}
+.hero-chips{display:flex;gap:8px;flex-wrap:wrap;}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-2);background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:999px;padding:6px 12px;}
+.chip b{color:var(--text);font-weight:600;}
+.hero-side{position:relative;z-index:1;flex-shrink:0;}
+
+/* ---- Progress ring ---- */
+.ring{position:relative;width:150px;height:150px;}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg);}
+.ring .track{fill:none;stroke:var(--ring-track);stroke-width:11;}
+.ring .fill{fill:none;stroke-width:11;stroke-linecap:round;transition:stroke-dashoffset .8s cubic-bezier(.4,0,.2,1);}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ring-val{font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1;}
+.ring-lbl{font-size:11.5px;color:var(--text-2);margin-top:5px;text-transform:uppercase;letter-spacing:.06em;}
+
+/* ============================================================ CARDS / GRID */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:22px 24px;margin-bottom:18px;box-shadow:var(--sh-sm);}
+.card.accent{background:linear-gradient(180deg,rgba(78,201,176,.07),transparent 55%),var(--surface);border-color:rgba(78,201,176,.2);}
+.grid{display:grid;gap:16px;margin-bottom:24px;}
+.grid.g2{grid-template-columns:repeat(2,1fr);}
+.grid.g3{grid-template-columns:repeat(3,1fr);}
+.grid.g4{grid-template-columns:repeat(4,1fr);}
+
+.stat{
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px 20px;
+  box-shadow:var(--sh-sm);transition:transform .15s,border-color .15s;
+}
+button.stat{cursor:pointer;text-align:left;width:100%;}
+button.stat:hover,.stat.hoverable:hover{transform:translateY(-2px);border-color:var(--border-2);}
+.stat .k{font-size:11.5px;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:9px;font-weight:600;}
+.stat .v{font-size:27px;font-weight:800;letter-spacing:-.02em;line-height:1.15;color:var(--text);}
+.stat .v.sm{font-size:16px;font-weight:650;letter-spacing:-.01em;line-height:1.4;}
+.stat .sub{font-size:12.5px;color:var(--text-3);margin-top:6px;}
+
+/* ============================================================ TIER BADGES */
+.tier{display:inline-flex;align-items:center;font-size:10px;font-weight:700;letter-spacing:.04em;padding:3px 9px;border-radius:999px;font-family:var(--mono);vertical-align:middle;}
+.tier.t1{color:#08211c;background:var(--t1);}
+.tier.t2{color:#052430;background:var(--t2);}
+.tier.t3{color:var(--text-2);background:var(--surface-3);}
+.tier.t4{color:#2a1f06;background:var(--t4);}
+.tier.t5{color:#2c0a09;background:var(--t5);}
+
+/* ============================================================ BUTTONS */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--surface-2);color:var(--text);border:1px solid var(--border);
+  border-radius:12px;padding:11px 18px;font-size:14.5px;font-weight:600;min-height:44px;
+  transition:transform .12s,background .12s,border-color .12s,box-shadow .12s;
+}
+.btn:hover{background:var(--surface-3);border-color:var(--border-2);transform:translateY(-1px);}
+.btn:active{transform:translateY(0);}
+.btn.primary{background:var(--grad-accent);color:#06231d;border-color:transparent;font-weight:700;box-shadow:0 6px 20px rgba(78,201,176,.22);}
+.btn.primary:hover{box-shadow:0 10px 28px rgba(78,201,176,.32);}
+.btn.success{background:transparent;color:var(--success);border-color:rgba(87,201,138,.4);}
+.btn.success:hover{background:rgba(87,201,138,.1);}
+.btn.warn{background:transparent;color:var(--warning);border-color:rgba(232,195,126,.4);}
+.btn.warn:hover{background:rgba(232,195,126,.1);}
+.btn.danger{background:transparent;color:var(--error);border-color:rgba(240,115,111,.4);}
+.btn.danger:hover{background:rgba(240,115,111,.12);}
+.btn.ghost{background:transparent;}
+.btn.ghost:hover{background:var(--hover);}
+.btn.sm{min-height:38px;padding:8px 14px;font-size:13.5px;border-radius:10px;}
+.btn.big{min-height:52px;padding:15px 26px;font-size:16px;border-radius:14px;}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+.btn-row{display:flex;gap:11px;flex-wrap:wrap;}
+
+/* ============================================================ FORMS */
+label.fl{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-2);font-weight:650;margin-bottom:8px;}
+input[type=text],input[type=number],textarea,select{
+  width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);
+  font-family:inherit;font-size:15px;padding:12px 14px;border-radius:12px;outline:none;transition:.15s;
+}
+textarea{resize:vertical;min-height:96px;line-height:1.6;}
+input:focus,textarea:focus,select:focus{border-color:rgba(78,201,176,.5);background:var(--surface-2);}
+.field{margin-bottom:18px;}
+.inline-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;}
+.range-wrap{display:flex;align-items:center;gap:14px;}
+input[type=range]{flex:1;accent-color:var(--accent);height:6px;}
+.range-val{font-family:var(--mono);font-size:16px;color:var(--accent);min-width:26px;text-align:center;font-weight:600;}
+.checkbox-field{display:flex;align-items:center;}
+.checkbox-field .cl{display:flex;align-items:center;gap:10px;font-size:14.5px;color:var(--text);font-weight:500;cursor:pointer;margin:0;text-transform:none;letter-spacing:0;}
+.checkbox-field input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent);flex:none;}
+.chip-input{display:flex;gap:8px;margin-bottom:10px;}
+.chip-input input{flex:1;}
+.chip-list{display:flex;flex-wrap:wrap;gap:8px;}
+.chip.evc{background:rgba(78,201,176,.08);border-color:rgba(78,201,176,.25);color:var(--text);padding:6px 8px 6px 12px;}
+.chip.evc button{background:none;border:none;color:var(--text-3);cursor:pointer;font-size:15px;line-height:1;padding:2px 4px;}
+.chip.evc button:hover{color:var(--error);}
+
+/* ============================================================ LADDER EDITOR */
+.ladder-row{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid var(--border);}
+.ladder-row:last-child{border-bottom:none;}
+.lr-pos{font-family:var(--mono);font-size:13px;color:var(--text-3);min-width:22px;padding-top:12px;flex:none;}
+.lr-main{flex:1;min-width:0;}
+.lr-main .lr-name{margin-bottom:6px;}
+.lr-diff{display:block;font-family:var(--mono);font-size:11.5px;color:var(--text-3);}
+.ladder-rec{margin-top:8px;font-size:13px;color:var(--accent-2,var(--accent));background:rgba(78,201,176,.08);border:1px solid rgba(78,201,176,.2);border-radius:10px;padding:9px 12px;line-height:1.5;}
+.lr-actions{display:flex;gap:6px;flex:none;padding-top:2px;}
+.ladder-add{display:flex;gap:8px;margin-top:16px;}
+.ladder-add input{flex:1;}
+
+/* ============================================================ MODULE FIELDS */
+.mfield{margin-bottom:20px;}
+.mfield .flabel{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);font-weight:700;margin-bottom:8px;}
+.mfield .ftext{color:var(--text);font-size:16px;line-height:1.7;}
+.mfield ul{margin:8px 0 0 20px;}
+.view ul,.view ol{margin:8px 0 14px 22px;}
+.view li{margin-bottom:8px;color:var(--text-2);}
+.view li::marker{color:var(--text-3);}
+.check-list{list-style:none;margin-left:0!important;}
+.check-list li{padding-left:28px;position:relative;}
+.check-list li::before{content:"";position:absolute;left:0;top:7px;width:15px;height:15px;border:1.5px solid var(--success);border-radius:5px;}
+
+.qref{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px 22px;margin-bottom:14px;box-shadow:var(--sh-sm);}
+.qref h3{font-size:16px;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.qref .step{font-size:15px;color:var(--text-2);margin-bottom:9px;padding-left:2px;}
+.qref .step b{color:var(--accent);font-weight:650;}
+
+.rm{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:22px 24px;margin-bottom:16px;box-shadow:var(--sh-sm);}
+.rm .name{font-size:18px;font-weight:750;margin-bottom:3px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;letter-spacing:-.01em;}
+.rm .desc{font-size:13.5px;color:var(--text-3);margin-bottom:16px;}
+.rm .row{display:grid;grid-template-columns:170px 1fr;gap:6px 18px;font-size:15px;margin-bottom:11px;}
+.rm .row .l{color:var(--accent);font-weight:600;font-size:14px;}
+.rm .row .t{color:var(--text-2);}
+
+.ladder{display:flex;flex-direction:column;}
+.ladder .rung{display:flex;gap:14px;align-items:center;padding:12px 4px;border-bottom:1px solid var(--border);font-size:15px;}
+.ladder .rung:last-child{border-bottom:none;}
+.ladder .rung .n{font-family:var(--mono);color:var(--accent);width:26px;flex-shrink:0;font-size:13px;}
+.ladder .rung .name{color:var(--text);}
+.ladder .rung .tag{margin-left:auto;font-size:11px;font-family:var(--mono);}
+.tag.done{color:var(--success);}
+.tag.todo{color:var(--text-3);}
+
+/* ============================================================ TABLES */
+.tbl-scroll{overflow-x:auto;border:1px solid var(--border);border-radius:16px;margin-bottom:18px;background:var(--surface);box-shadow:var(--sh-sm);}
+table.data{width:100%;border-collapse:collapse;font-size:14px;}
+table.data th{background:transparent;color:var(--text-3);font-size:11px;text-transform:uppercase;letter-spacing:.04em;font-weight:650;padding:14px 16px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--border);}
+table.data td{padding:13px 16px;border-bottom:1px solid var(--border);color:var(--text-2);vertical-align:top;}
+table.data tr:last-child td{border-bottom:none;}
+table.data td.strong{color:var(--text);font-weight:650;}
+table.data tr:hover td{background:var(--hover);}
+table.data .num{font-family:var(--mono);}
+
+/* ============================================================ ROUTINE / TIMER */
+.phase{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:22px 24px;margin-bottom:16px;box-shadow:var(--sh-sm);transition:box-shadow .2s,border-color .2s;}
+.phase.active{border-color:transparent;box-shadow:var(--glow);}
+.phase.done{opacity:.6;}
+.phase-top{display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap;}
+.phase-num{width:38px;height:38px;border-radius:11px;background:var(--surface-2);color:var(--accent);font-family:var(--mono);font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px;}
+.phase.active .phase-num{background:var(--grad-accent);color:#06231d;}
+.phase.done .phase-num{background:var(--success);color:#052414;}
+.phase-title{font-size:17px;font-weight:700;letter-spacing:-.01em;}
+.phase-dur{font-family:var(--mono);color:var(--text-3);font-size:13px;}
+.phase-status{margin-left:auto;font-size:11px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em;}
+.phase-status.s-done{color:var(--success);}
+.phase-status.s-skip{color:var(--warning);}
+.timer{font-family:var(--mono);font-size:46px;font-weight:700;letter-spacing:1px;margin:8px 0 16px;color:var(--text);}
+.timer.run{color:var(--accent);}
+.timer.over{color:var(--warning);}
+.phase-body{font-size:15px;color:var(--text-2);line-height:1.7;margin-bottom:16px;}
+.phase-body .cue{margin-bottom:4px;}
+.phase-meta{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;font-size:13.5px;padding:14px 16px;background:var(--surface-2);border-radius:12px;}
+.phase-meta .m .ml{color:var(--text-3);text-transform:uppercase;font-size:10px;letter-spacing:.05em;margin-bottom:4px;font-weight:600;}
+.phase-meta .m{color:var(--text-2);}
+
+/* ============================================================ TOASTS */
+.toast-wrap{position:fixed;bottom:44px;right:22px;z-index:9000;display:flex;flex-direction:column;gap:11px;max-width:360px;}
+.toast{
+  background:var(--surface-2);border:1px solid var(--border-2);border-radius:14px;padding:14px 17px;
+  font-size:14px;color:var(--text);box-shadow:var(--sh-lg);display:flex;align-items:flex-start;gap:11px;
+  animation:tin .22s cubic-bezier(.2,.8,.2,1);
+}
+.toast .ti{width:22px;height:22px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;background:var(--surface-3);}
+.toast.success .ti{background:rgba(87,201,138,.16);color:var(--success);}
+.toast.error .ti{background:rgba(240,115,111,.16);color:var(--error);}
+.toast.warn .ti{background:rgba(232,195,126,.16);color:var(--warning);}
+.toast.leaving{animation:tout .2s forwards;}
+@keyframes tin{from{opacity:0;transform:translateY(10px) scale(.98);}to{opacity:1;transform:none;}}
+@keyframes tout{to{opacity:0;transform:translateY(8px);}}
+
+/* ============================================================ MODAL */
+.modal-back{position:fixed;inset:0;background:rgba(6,7,10,.66);backdrop-filter:blur(4px);z-index:9500;display:flex;align-items:center;justify-content:center;padding:20px;animation:fade .18s;}
+.modal{background:var(--surface);border:1px solid var(--border-2);border-radius:20px;max-width:470px;width:100%;padding:28px;box-shadow:var(--sh-lg);animation:pop .2s cubic-bezier(.2,.8,.2,1);}
+.modal h3{font-size:19px;font-weight:750;margin-bottom:11px;letter-spacing:-.01em;}
+.modal p{color:var(--text-2);font-size:15px;margin-bottom:24px;}
+.modal .btn-row{justify-content:flex-end;}
+@keyframes fade{from{opacity:0;}to{opacity:1;}}
+@keyframes pop{from{opacity:0;transform:scale(.96) translateY(6px);}to{opacity:1;transform:none;}}
+
+/* ============================================================ COMMAND PALETTE */
+.cmdk-back{position:fixed;inset:0;background:rgba(6,7,10,.6);backdrop-filter:blur(6px);z-index:9600;display:flex;justify-content:center;padding-top:12vh;animation:fade .16s;}
+.cmdk{background:var(--surface);border:1px solid var(--border-2);border-radius:18px;width:min(620px,92vw);max-height:66vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--sh-lg);animation:pop .2s cubic-bezier(.2,.8,.2,1);}
+.cmdk-input{padding:16px 18px;border-bottom:1px solid var(--border);}
+.cmdk-input input{font-size:16.5px;padding:11px 14px;border-radius:12px;}
+.cmdk-results{overflow-y:auto;padding:8px;}
+.cmdk-row{display:flex;align-items:center;gap:13px;padding:12px 14px;border-radius:12px;cursor:pointer;}
+.cmdk-row .ico{width:22px;text-align:center;opacity:.85;}
+.cmdk-row .txt .t{font-size:15px;color:var(--text);}
+.cmdk-row .txt .c{font-size:12px;color:var(--text-3);}
+.cmdk-row.sel,.cmdk-row:hover{background:var(--surface-2);}
+.cmdk-empty{padding:30px;text-align:center;color:var(--text-3);font-size:14.5px;}
+.cmdk-foot{padding:10px 16px;border-top:1px solid var(--border);font-size:12px;color:var(--text-3);display:flex;gap:18px;}
+
+/* ============================================================ CHARTS */
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:20px 22px;margin-bottom:18px;box-shadow:var(--sh-sm);}
+.chart-card h3{font-size:16px;font-weight:700;margin-bottom:4px;letter-spacing:-.01em;}
+.chart-card .cnote{font-size:13px;color:var(--text-3);margin-bottom:16px;}
+.chart-holder{position:relative;width:100%;}
+canvas{display:block;width:100%;}
+.legend{display:flex;gap:20px;flex-wrap:wrap;margin-top:12px;font-size:12.5px;color:var(--text-2);}
+.legend span{display:inline-flex;align-items:center;gap:7px;}
+.legend i{width:14px;height:3px;border-radius:2px;display:inline-block;}
+
+/* ============================================================ MISC */
+.empty{text-align:center;padding:60px 20px;}
+.empty .big{font-size:44px;margin-bottom:16px;opacity:.65;}
+.empty p{color:var(--text-2);max-width:46ch;margin:0 auto 20px;font-size:15.5px;}
+.pill{display:inline-flex;align-items:center;font-size:11.5px;font-family:var(--mono);padding:4px 11px;border-radius:999px;background:var(--surface-2);border:1px solid var(--border);color:var(--text-2);}
+.pill.ok{color:var(--success);border-color:rgba(87,201,138,.3);background:rgba(87,201,138,.08);}
+.pill.no{color:var(--text-3);}
+.hr{height:1px;background:var(--border);margin:26px 0;border:none;}
+.tabs{display:inline-flex;gap:3px;background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:4px;margin-bottom:26px;overflow-x:auto;max-width:100%;box-shadow:var(--sh-sm);}
+.tabs button{background:none;border:none;border-radius:10px;color:var(--text-2);font-size:14px;font-weight:600;padding:9px 17px;white-space:nowrap;min-height:38px;transition:.12s;}
+.tabs button.active{color:var(--text);background:var(--surface-2);box-shadow:var(--sh-sm);}
+.tabs button:hover:not(.active){color:var(--text);}
+.kbd{font-family:var(--mono);font-size:11px;background:var(--surface-3);border:1px solid var(--border);border-radius:6px;padding:2px 7px;color:var(--text-2);}
+
+/* ============================================================ RESPONSIVE */
+.scrim{display:none;}
+@media(max-width:900px){
+  .app{grid-template-columns:1fr;grid-template-areas:"title" "editor" "status";}
+  .sidebar{position:fixed;top:44px;bottom:30px;left:0;width:min(84vw,320px);z-index:800;transform:translateX(-103%);transition:transform .24s cubic-bezier(.2,.8,.2,1);box-shadow:var(--sh-lg);}
+  .app.nav-open .sidebar{transform:none;}
+  .app.nav-open .scrim{display:block;position:fixed;inset:44px 0 30px 0;background:rgba(6,7,10,.5);z-index:700;}
+  .hamburger{display:block;}
+  .view{padding:24px 18px 110px;}
+  .breadcrumbs{padding:0 18px;}
+  .grid.g3,.grid.g4,.grid.g2{grid-template-columns:1fr;}
+  .hero{flex-direction:column;align-items:flex-start;padding:26px 22px;}
+  .hero-side{align-self:center;}
+  .rm .row{grid-template-columns:1fr;gap:2px;}
+  .phase-meta{grid-template-columns:1fr;}
+  .h-page{font-size:25px;}.hero-title{font-size:26px;}
+  .timer{font-size:38px;}
+  .cmdk-hint{display:none;}
+  .ver{display:none;}
+}
+@media(max-width:520px){
+  .inline-fields{grid-template-columns:1fr;}
+  .statusbar .seg.hide-sm{display:none;}
+  .grid.g4 .stat .v{font-size:24px;}
+  .ladder-row{flex-wrap:wrap;}
+  .lr-actions{width:100%;padding-left:36px;}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important;}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <header class="titlebar">
+    <button class="hamburger" id="hamburger" aria-label="Toggle navigation">&#9776;</button>
+    <div class="traffic" aria-hidden="true"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+    <div class="brand"><span class="logo" aria-hidden="true"></span><span class="filetitle">Communication&nbsp;<b>OS</b></span></div>
+    <span class="ver" id="titleVersion">v1.0.0</span>
+    <div class="spacer"></div>
+    <button class="cmdk-hint" id="cmdkOpen" aria-label="Open search"><span>&#128269;</span> Search <span class="kbd">&#8984; K</span></button>
+  </header>
+
+  <nav class="sidebar" id="sidebar" aria-label="Primary">
+    <div class="side-search"><input type="text" id="sideSearch" placeholder="Search everything&hellip;" autocomplete="off" spellcheck="false"></div>
+    <div class="side-scroll" id="navTree"></div>
+  </nav>
+
+  <main class="editor">
+    <div class="tabbar" id="tabbar"></div>
+    <div class="breadcrumbs" id="breadcrumbs"></div>
+    <div class="editor-scroll" id="editorScroll">
+      <div class="view" id="view"></div>
+    </div>
+  </main>
+
+  <footer class="statusbar" id="statusbar"></footer>
+  <div class="scrim" id="scrim"></div>
+</div>
+
+<div class="toast-wrap" id="toastWrap" aria-live="polite"></div>
+<div id="modalRoot"></div>
+<div id="cmdkRoot"></div>
+
+<script>
+/* ============================================================================
+   COMMUNICATION OS — v1.0.0
+   A long-term communication training operating system.
+   Offline · LocalStorage · No dependencies.
+   ----------------------------------------------------------------------------
+   SECTIONS
+     1. CONFIG & CONTENT DATA
+     2. UTILITIES
+     3. STORAGE (load / save / validate / migrate / export / import)
+     4. APP STATE & DERIVED STATISTICS
+     5. TOASTS & MODALS
+     6. NAVIGATION (sidebar tree, breadcrumbs, tabs, status bar)
+     7. ROUTER
+     8. VIEWS: Dashboard
+     9. VIEWS: Today's Session (Routine / Module / Exposure)
+    10. ROUTINE TIMER ENGINE
+    11. VIEWS: Learn (Modules)
+    12. VIEWS: Reference Library
+    13. VIEWS: Progress (Tracker / History / Analytics)
+    14. ANALYTICS CHARTS (canvas)
+    15. VIEWS: Settings
+    16. SEARCH / COMMAND PALETTE
+    17. INIT
+   ========================================================================== */
+
+'use strict';
+
+/* ============================================================================
+   1. CONFIG & CONTENT DATA
+   ========================================================================== */
+
+const CONFIG = Object.freeze({
+  STORAGE_KEY: 'communication-os',
+  VERSION: '2.0.0',
+  TOTAL_WEEKS: 12,
+  TOTAL_MODULES: 12,
+  BACKUP_REMINDER_DAYS: 7,
+  RECOMMEND_SAMPLE: 5,        // how many recent completed exposures a rung needs before we'll suggest reordering it
+  RECOMMEND_THRESHOLD: 2      // average anxiety-after at/below this suggests the rung may belong lower
+});
+
+/* ---- Daily routine phases (from the 20-minute execution protocol) ---- */
+const ROUTINE_PHASES = [
+  {
+    id: 'reset', num: 1, name: 'Diaphragmatic Reset', minutes: 4,
+    instructions: [
+      '4-4-4-4 box breathing \u00d7 4 rounds (inhale 4, hold 4, exhale 4, hold 4).',
+      'Then 10 diaphragmatic "ahh" tones, dropping in pitch each time.'
+    ],
+    mistake: 'Breathing from the chest instead of the belly \u2014 your shoulders should not rise.',
+    cue: 'Hand on stomach rises on the inhale; the "ahh" tones feel supported, not strained.'
+  },
+  {
+    id: 'resonance', num: 2, name: 'Resonance & Articulation', minutes: 5,
+    instructions: [
+      'Lip trills, 90 seconds.',
+      'Low \u2192 high \u2192 low siren hum, 90 seconds.',
+      'Then 2 minutes reading a paragraph aloud, over-articulating every consonant.'
+    ],
+    mistake: 'Forcing volume from the throat \u2014 it should feel like breath support, not strain.',
+    cue: 'No vocal fatigue afterward; consonants feel crisp when you drop back to normal speech.'
+  },
+  {
+    id: 'logic', num: 3, name: 'Logic-Thread Drill', minutes: 6,
+    instructions: [
+      'Pick one random topic. Give a 2-minute answer using PREP or the Pyramid Principle.',
+      'Repeat with a second topic.'
+    ],
+    mistake: 'Rehearsing the same topic until it is memorized instead of practicing live structuring.',
+    cue: 'You can state your conclusion in the first sentence, unprompted, both times.'
+  },
+  {
+    id: 'body', num: 4, name: 'Body-Language Rep', minutes: 3,
+    instructions: [
+      'In front of a mirror: one pre-speech signal (nod or eyebrow lift), hands visible.',
+      'Hold eye contact with your reflection through a 2-second pause.'
+    ],
+    mistake: 'Performing the cues so deliberately they look mechanical.',
+    cue: 'The pause does not make you look away or fidget.'
+  },
+  {
+    id: 'playback', num: 5, name: 'Playback & Self-Review', minutes: 2,
+    instructions: [
+      'Voice-memo one of today\u2019s reps on your phone. Play it back once.',
+      'Note one thing that worked and one thing to adjust tomorrow.'
+    ],
+    mistake: 'Judging harshly on tone alone \u2014 listen for structure and pace, not just "did I sound anxious."',
+    cue: 'You can name one specific, fixable thing \u2014 not a vague "I sounded bad."'
+  }
+];
+
+/* ---- Exposure ladder DEFAULTS ----------------------------------------
+   This is only a SEED. The live, editable ladder lives in state.ladder
+   (see Storage section) and is populated from this list the first time
+   the app runs, or migrated in for older saves. Never read this array
+   directly outside of defaultState()/migrateState() \u2014 use getLadder(). ---- */
+const DEFAULT_LADDER = [
+  { id: 'r1',  name: 'Order food in English (scripted)' },
+  { id: 'r2',  name: 'Ask a stranger a directional question' },
+  { id: 'r3',  name: 'Give a genuine compliment to a stranger' },
+  { id: 'r4',  name: 'Small talk with a cashier, 3+ exchanges' },
+  { id: 'r5',  name: 'Join a group conversation, one comment' },
+  { id: 'r6',  name: 'One-on-one conversation with a woman' },
+  { id: 'r7',  name: 'Real conversation using answer-first structure' },
+  { id: 'r8',  name: 'Rhetorical pause in a real conversation' },
+  { id: 'r9',  name: 'Real interruption, handled without a switch' },
+  { id: 'r10', name: 'Public/group moment with full nonverbal congruence' },
+  { id: 'r11', name: '3\u20135 minute talk to a real audience' },
+  { id: 'r12', name: 'Real adversarial conversation' },
+  { id: 'r13', name: 'Full-stack week: talk + 2 new conversations + adversarial + cold call' },
+  { id: 'r14', name: 'Capstone talk to your largest real audience' }
+];
+
+/* ---- Frameworks (Reference Library) ---- */
+const FRAMEWORKS = [
+  {
+    id: 'pace', name: 'PACE+ Recovery Protocol', tag: 't1',
+    steps: [
+      ['P \u2014 Pause', 'Stop completely, 1\u20132 sec. Don\u2019t push through a jumbled sentence.'],
+      ['A \u2014 Accept', '"I\u2019m thinking," not "I\u2019m failing." Reset posture \u2014 shoulders back, jaw soft.'],
+      ['C \u2014 Continue', 'Restart from your last complete idea, slower, in English, with an anchor phrase.'],
+      ['E \u2014 End clean', 'Finish the sentence. No apology.'],
+      ['+ Language Lock', 'Once you start a sentence in English, finish it in English \u2014 even mid-stumble. The restart-language is always English, no exceptions.']
+    ]
+  },
+  {
+    id: 'prep', name: 'PREP Framework', tag: 't3',
+    steps: [
+      ['Point', 'State your answer first.'],
+      ['Reason', 'Why that\u2019s your answer.'],
+      ['Example', 'One concrete case.'],
+      ['Point', 'Restate it to close.']
+    ]
+  },
+  {
+    id: 'pyramid', name: 'Pyramid Principle', tag: 't3',
+    steps: [
+      ['Conclusion first', 'Conclusion \u2192 Because \u2192 For example \u2192 Therefore. Lead with the answer, not the journey to it.']
+    ]
+  },
+  {
+    id: 'feynman', name: 'Feynman Technique', tag: 't3',
+    steps: [
+      ['Name it plainly', 'State the concept as if to a curious 12-year-old \u2014 no jargon.'],
+      ['Explain in plain words', 'Talk it through out loud. The moment you reach for jargon, you\u2019ve found the gap.'],
+      ['Find the gap', 'Where the explanation broke down is exactly what you don\u2019t yet understand. Go relearn that piece.'],
+      ['Simplify & analogize', 'Rebuild with one everyday analogy. If it still needs jargon, it isn\u2019t simple enough yet.']
+    ]
+  },
+  {
+    id: 'story', name: 'Story Framework (STAR)', tag: 't3',
+    steps: [
+      ['Situation', 'Set the scene in one line.'],
+      ['Task', 'What needed solving.'],
+      ['Action', 'The decision you made.'],
+      ['Result', 'The outcome, stated plainly.']
+    ]
+  },
+  {
+    id: 'englishlock', name: 'English Lock Rule', tag: 't1',
+    steps: [
+      ['The rule', 'Once a sentence starts in English, it finishes in English \u2014 even mid-stumble.'],
+      ['If you fully lose it', 'Pause, breathe, restart the sentence in English, never Pidgin.'],
+      ['Why', 'No exceptions, so your brain stops treating Pidgin as an available exit.']
+    ]
+  }
+];
+
+/* ---- Role models ---- */
+const ROLE_MODELS = [
+  {
+    name: 'Vusi Thembekwayo', desc: 'Business gravitas through structure and restraint',
+    rows: [
+      ['Tripartite structure', 'Point \u2192 Counterpoint \u2192 Synthesis. State a claim, name the strongest objection, resolve into a sharper final position.'],
+      ['Metaphor-to-data ratio', 'Ground abstract claims in one concrete example before moving on \u2014 never left floating as theory.'],
+      ['Deliberate pause', 'A 2\u20133 second silence immediately after a strong statement, before elaboration.']
+    ]
+  },
+  {
+    name: 'Mehdi Hasan', desc: 'Interview logic and interruption control',
+    rows: [
+      ['Acknowledge-redirect', '"Right, and here\u2019s the piece that matters\u2014" absorbs an interruption, then pivots back to your point.'],
+      ['The boundary', '"Let me finish this thought, then I\u2019ll take that\u2014" polite, firm, doesn\u2019t concede the floor.'],
+      ['The deflection', '"That\u2019s a separate question \u2014 let\u2019s come back to it," for someone trying to derail rather than engage.']
+    ]
+  },
+  {
+    name: 'Vinh Giang', desc: 'Vocal mechanics as trainable motor skill',
+    rows: [
+      ['Yawn-Ahhh', 'Start a yawn, hold the lifted soft palate, voice an "ahh" \u2014 opens the resonance space a tight, anxious throat closes off.'],
+      ['Lip trills to rhythm', 'Hum lip trills to a song\u2019s melody \u2014 builds steady breath support without forcing volume.'],
+      ['Over-articulation', 'Exaggerate every consonant reading aloud, then repeat at normal pace holding the same jaw opening.']
+    ]
+  }
+];
+
+/* ---- Recovery: decision trees & trigger map (Reference) ---- */
+const RECOVERY = {
+  scenarios: [
+    { sit: 'Forgot the sentence mid-way', tree: ['Pause \u2014 full stop, don\u2019t backfill with filler.', 'Restate your last complete idea in English.', 'Continue from there, slower. No apology.'] },
+    { sit: 'Blanked completely', tree: ['One diaphragmatic breath \u2014 buys 2 seconds legitimately.', 'Say your conclusion again ("The point is\u2026") \u2014 it re-anchors you and the listener.', 'Rebuild from the conclusion outward.'] },
+    { sit: 'Got interrupted', tree: ['Hold the floor: "Let me finish this thought, then I\u2019ll take that."', 'Finish your sentence in English.', 'Then engage the interruption on your terms.'] },
+    { sit: 'Lost eye contact / looked away', tree: ['Don\u2019t announce it. Finish the current clause.', 'Re-anchor eye contact on the next sentence\u2019s first word.', 'Log it as a body-language cue for tomorrow\u2019s mirror rep.'] },
+    { sit: 'Switched to Pidgin', tree: ['Language Lock: do NOT restart in Pidgin.', 'Pause, breathe, restart the sentence in English.', 'The switch is data for your trigger map, not a failure.'] }
+  ],
+  triggerMap: [
+    'Log every freeze/switch: who was present, the stakes, whether it was scripted.',
+    'Look for the pattern \u2014 is it a person type (women, authority), a topic, or unscriptedness?',
+    'The trigger, once named, becomes your next exposure-ladder target.'
+  ],
+  examples: [
+    ['"If I switch, they\u2019ll think I\u2019m uneducated."', 'My degree is a fact. Pidgin is a habit, not a deficit.'],
+    ['"Everyone noticed that freeze."', 'On playback, my "obvious" freeze was a 1-second pause nobody flagged.'],
+    ['"I need to feel calm before I speak."', 'The exposure creates the calm. Waiting to feel ready is the trap.']
+  ]
+};
+
+/* ---- FAQ ---- */
+const FAQ = [
+  { q: 'What if I skip a week?', a: 'Nothing breaks. This is an operating system, not a countdown. Resume at the module you were on \u2014 don\u2019t restart from zero, and don\u2019t "make up" skipped days by doubling. Consistency over weeks beats intensity over days. If you skip, run a Minimum Viable Day to keep the habit alive: one breath reset, one exposure, one tracker entry.' },
+  { q: 'What is a Minimum Viable Day?', a: 'The smallest version of the practice that still counts. On a bad day: 4 minutes of box breathing, one small exposure (even rung 1\u20132), and a single tracker line. It protects the streak and the identity ("I am someone who does this") without demanding the full 20-minute routine. A Minimum Viable Day is a win, not a failure.' },
+  { q: 'How do I know I\u2019m improving?', a: 'Not by how you feel in the moment \u2014 feeling is a bad instrument here. Improvement shows up in the data: recovery rate climbing, anxiety-after dropping below anxiety-before, exposure rung progression, and your Week-1-vs-now baseline recording. Trust the Analytics tab over your memory of a single bad conversation.' },
+  { q: 'What if a freeze happens in a real, high-stakes moment?', a: 'Run PACE+ exactly as drilled: Pause, Accept, Continue in English, End clean. You don\u2019t have to win the argument with your anxiety in the moment \u2014 if the reframe doesn\u2019t land live, use it in the post-mortem. Then log it. A logged freeze with a clean recovery is a success, not a setback.' },
+  { q: 'Do I have to do the modules in order?', a: 'The first time through, roughly yes \u2014 breath and reframing (Modules 1\u20134) underpin everything above them. After that, this becomes a reference library: revisit any module when its skill feels rusty. Maintenance (Module 12) is meant to be re-read every few weeks indefinitely.' },
+  { q: 'Is this a substitute for therapy?', a: 'No. This is educational and self-directed. If freezing, anxiety, or fluency issues feel severe or persistent, a licensed speech-language pathologist or therapist can tailor this far more precisely to you. Verify any technique here independently.' }
+];
+
+/* ---- Rotating daily quotes ---- */
+const QUOTES = [
+  'This isn\u2019t a language problem \u2014 it\u2019s a performance-under-pressure pattern.',
+  'Breathe \u2192 speak in English \u2192 recover clean if you freeze. In that order.',
+  'The exposure creates the calm. It is not a precondition for it.',
+  'A logged freeze with a clean recovery is a success, not a setback.',
+  'You replace a habit \u2014 you don\u2019t just remove one.',
+  'Slower, paired with eye contact, reads as control \u2014 not hesitation.',
+  'Lead with the answer, not the journey to it.',
+  'Absence of a freeze is still data. Log the quiet days too.',
+  'The restart-language is always English. No exceptions.',
+  'Completion matters, not the outcome.',
+  'Your writing is already fluent. That\u2019s evidence the gap is stress, not competence.',
+  'Finishing the program is the start of maintenance, not the finish line.'
+];
+
+/* ---- Scientific appendix ---- */
+const APPENDIX = [
+  ['Diaphragmatic breathing', 'Lowers sympathetic (fight-or-flight) arousal before a speech task begins.', 't1', 'Standard respiratory-support technique in speech-language pathology.', 'Before any practice block or real exposure.', 'That it needs to be dramatic \u2014 small, quiet belly breaths work better.'],
+  ['Graded exposure hierarchy', 'Repeated, ranked exposure to a feared situation extinguishes the fear response over time.', 't1', 'Wolpe\u2019s systematic desensitization; one of the most replicated findings in behavioral psychology.', 'Structuring the whole exposure ladder.', 'That you must feel calm before a rung \u2014 the exposure itself creates the calm.'],
+  ['Cognitive restructuring', 'Disputing an automatic negative thought reduces its power to trigger a freeze.', 't1', 'Core CBT technique (Beck), decades of replication across anxiety disorders.', 'Module 1 reframes, and any recurring freeze-thought.', 'That positive thinking alone is the goal \u2014 the reframe must be evidence-based.'],
+  ['Habit reversal training', 'Awareness plus a deliberate competing response breaks an automatic loop.', 't1', 'Azrin & Nunn, applied behavior analysis \u2014 first-line for tics and verbal habits.', 'Filler words and Pidgin-switching.', 'That awareness alone fixes the habit \u2014 it only sets up the competing response.'],
+  ['Vocal Function Exercises', 'Systematic exercises build controlled projection without vocal strain.', 't1', 'Stemple protocol, standard in SLP voice therapy.', 'Breath & Voice work; any weak resonance.', 'That louder is always better \u2014 the goal is supported, not forced, volume.'],
+  ['Relapse prevention planning', 'Pre-identifying high-risk situations prevents drift back to old patterns.', 't1', 'Marlatt & Gordon, CBT maintenance-phase protocol.', 'Maintenance module, and ongoing.', 'That finishing the program means the work is done.'],
+  ['Rate control / pacing', 'Deliberately reduced speech rate lowers disfluency and processing load.', 't2', 'Fluency-shaping technique from stuttering therapy, controlled-study support.', 'Any time you notice yourself rushing.', 'That slower always sounds less confident.'],
+  ['Prosody training', 'Deliberate pitch/pace variation corrects flattened, anxiety-driven monotone.', 't2', 'SLP intervention studies on affect and vocal variation.', 'Any time delivery feels flat.', 'That variation means being loud \u2014 it\u2019s about range, not volume.'],
+  ['Video self-modeling', 'Reviewing your own recording corrects the inflated self-image of a freeze.', 't2', 'Clark & Wells social-anxiety treatment protocol.', 'Weekly playback in the routine.', 'That you\u2019ll see what you feared \u2014 most freezes look minor on playback.'],
+  ['Cognitive flexibility rehearsal', 'Arguing both sides trains real-time adaptability under challenge.', 't2', 'Behavioral flexibility training literature.', 'The steelman drill.', 'That it means abandoning your position \u2014 it pressure-tests it.'],
+  ['Interoceptive exposure', 'Practicing calm speech on induced arousal builds tolerance for real adrenaline.', 't2', 'Adapted from panic/anxiety exposure literature.', 'Before high-stakes talks.', 'That a racing heart means you\u2019re failing \u2014 it\u2019s expected and trainable.'],
+  ['Pyramid Principle', 'Leading with the conclusion reduces listener load and speaker hesitation.', 't3', 'Business-communication convention (Minto) \u2014 practitioner consensus.', 'Every structured answer.', 'That it\u2019s a scientific law \u2014 it\u2019s a strong heuristic, not gospel.'],
+  ['Nonverbal congruence training', 'Aligning gesture, eye contact and posture with intent corrects how you\u2019re read.', 't3', 'Broad social-skills-training consensus.', 'Before any speaking exposure.', 'That more gesturing is better \u2014 congruence, not quantity, is the goal.'],
+  ['Role-model techniques', 'Provide concrete language for applying Tier 1\u20132 mechanisms in your own voice.', 't4', 'Observed patterns in individual speakers \u2014 not independently tested.', 'As phrasing inspiration only.', 'That copying their delivery is the goal \u2014 the goal is your own calm voice.']
+];
+
+/* ---- Evidence tiers (explainer) ---- */
+const TIERS = [
+  ['t1', 'Tier 1', 'Strong clinical evidence \u2014 replicated across controlled studies.'],
+  ['t2', 'Tier 2', 'Good evidence \u2014 controlled-study support, often from adjacent fields.'],
+  ['t3', 'Tier 3', 'Practitioner consensus \u2014 well-tested heuristic, not a clinical trial.'],
+  ['t4', 'Tier 4', 'Inspiration \u2014 observed patterns in individuals, not independently tested.'],
+  ['t5', 'Tier 5', 'Speculative \u2014 use with caution; unproven.']
+];
+
+/* ---- The 12 topic modules (Learn) ---------------------------------------
+   Field types accepted by the renderer:
+     string        -> paragraph
+     {h}           -> subheading
+     {ul:[...]}    -> bullet list
+     {ol:[...]}    -> numbered list
+     {note}        -> callout
+     {pair:[a,b]}  -> "a — b" reframe row
+   ------------------------------------------------------------------------- */
+const MODULES = [
+  {
+    num: 1, title: 'Why This Works', subtitle: 'The mechanism behind everything else',
+    objective: 'Understand why this program is built the way it is, so you trust the process on the days it feels pointless.',
+    why: 'This isn\u2019t a language problem \u2014 it\u2019s a performance-under-pressure pattern. Your writing is already organized and fluent; that\u2019s real evidence the gap is a stress response, not competence. Everything here trains the response, not the vocabulary.',
+    science: [
+      { tier: 't1', text: 'Graded exposure hierarchy (Wolpe) \u2014 ranked, repeated exposure extinguishes a fear response.' },
+      { tier: 't1', text: 'Cognitive restructuring (Beck / CBT) \u2014 disputing an automatic thought weakens its grip.' },
+      { tier: 't1', text: 'Habit reversal training (Azrin & Nunn) \u2014 awareness plus a competing response breaks a loop.' }
+    ],
+    content: [
+      { h: 'Three mechanisms do the work' },
+      'Exposure therapy is the engine. A feared situation, met repeatedly in ranked steps, stops producing the alarm. You don\u2019t reason your way out of the freeze \u2014 you accumulate evidence that speaking under mild pressure is survivable, one rung at a time.',
+      'CBT is the steering. The freeze usually starts before you speak, in the anticipatory thought ("If I switch, they\u2019ll think I\u2019m uneducated"). Catching and disputing that thought is often more effective than anything you do mid-sentence.',
+      'Habit reversal is the cleanup. Filler words and language-switching are learned competing responses to discomfort. You don\u2019t just delete them \u2014 you install a deliberate replacement (a silent pause, an English anchor phrase) in the same slot.',
+      { h: 'Evidence tiers' },
+      'Every technique in this OS is tagged 1\u20135 so you know how much to trust it. Tier 1\u20132 is the spine \u2014 breath, exposure, reframing, pacing. Tier 3 is strong heuristics (Pyramid Principle). Tier 4 is inspiration only (role models). Never mistake a Tier 4 flourish for a Tier 1 mechanism.'
+    ],
+    examples: [
+      { h: 'Anticipatory reframes' },
+      { pair: ['"If I switch to Pidgin, they\u2019ll think I\u2019m uneducated."', 'My degree is a fact. Pidgin is a habit, not a deficit.'] },
+      { pair: ['"I need to feel calm before I can speak well."', 'The exposure creates the calm. Waiting to feel ready is the trap.'] },
+      { pair: ['"Everyone saw me freeze."', 'On playback, most "obvious" freezes are a 1-second pause nobody flagged.'] }
+    ],
+    practice: [
+      { ol: [
+        'Read the five evidence tiers in the Reference Library once. You should be able to say which tier breath work is (Tier 1) and which tier copying a speaker\u2019s cadence is (Tier 4).',
+        'Write your single most common freeze-thought, and draft an evidence-based counter for it \u2014 true, not just positive.'
+      ] },
+      { note: 'You only need to internalize the "why" once. After that, this module is a place to return when motivation dips.' }
+    ],
+    reflection: [
+      'Which of the three mechanisms \u2014 exposure, reframing, habit reversal \u2014 do you think you\u2019ve been skipping until now?',
+      'What is the actual thought that fires in the first 3 seconds before you freeze?'
+    ]
+  },
+  {
+    num: 2, title: 'Bilingual Switching', subtitle: 'Breaking the anxiety \u2192 Pidgin link',
+    objective: 'Make English your automatic restart-language under pressure, so switching stops being an available exit.',
+    why: 'Language-switching is a learned escape from discomfort, not a lack of English. If your brain knows Pidgin is always available when things get hard, it will keep reaching for it. Remove the exit and the freeze has nowhere to go but through.',
+    science: [
+      { tier: 't1', text: 'Habit reversal training (Azrin & Nunn) \u2014 awareness phase, then competing response.' },
+      { tier: 't1', text: 'Cognitive restructuring \u2014 disputing the "switching = smarter/safer" belief.' }
+    ],
+    content: [
+      { h: 'The English Lock Rule' },
+      'Once a sentence starts in English, it finishes in English \u2014 even mid-stumble. If you fully lose it: pause, breathe, restart the sentence in English, never Pidgin. No exceptions, so your brain stops treating Pidgin as an available exit.',
+      { h: 'Build your trigger map' },
+      'For one week, log every switch: who was present, the stakes, whether the moment was scripted. You\u2019re looking for the pattern \u2014 a person type, a topic, or simple unscriptedness. The named trigger becomes your next exposure target.',
+      { h: 'Anchor phrases buy thinking time' },
+      'Anchor phrases are pre-loaded English openers that hold the floor while you assemble the real sentence. Drill three until they\u2019re automatic \u2014 they should feel like reflexes, not scripts.'
+    ],
+    examples: [
+      { h: 'Anchor phrases to drill (20\u00d7 each)' },
+      { ul: ['"Let me put it this way\u2014"', '"Here\u2019s the thing\u2014"', '"The way I see it\u2014"'] },
+      { h: 'Recovery in the moment' },
+      'If a switch slips out, don\u2019t restart the whole sentence \u2014 insert a silent pause where the Pidgin would have gone, and continue in English.'
+    ],
+    practice: [
+      { ol: [
+        'Days 1\u20133: count switches in normal conversation. No correction \u2014 pure data.',
+        'Days 4\u20137: replace the urge to switch with a deliberate 1-second silent pause. The pause is the competing response.',
+        'Drill your three anchor phrases 20\u00d7 each, out loud, daily.',
+        'Use one anchor phrase in a real conversation this week.'
+      ] },
+      { note: 'You can\u2019t replace a habit you haven\u2019t measured yet. Finish the awareness phase before you start correcting.' }
+    ],
+    reflection: [
+      'Did your switch-count go up or down once you started measuring it? (Either is normal.)',
+      'Which trigger showed up most \u2014 a person, a topic, or unscriptedness?'
+    ]
+  },
+  {
+    num: 3, title: 'Daily Routine', subtitle: 'The 20-minute execution protocol',
+    objective: 'Install a repeatable daily block that trains breath, voice, logic and body language in 20 minutes.',
+    why: 'Skill is built by frequency, not intensity. A short protocol you actually run every day beats a long one you abandon by week two. This is the minimum effective dose, structured so no decision is required once you start.',
+    science: [
+      { tier: 't1', text: 'Distributed practice \u2014 short, spaced reps beat massed cramming for motor and cognitive skills.' },
+      { tier: 't2', text: 'Video/audio self-modeling (Clark & Wells) \u2014 the playback step corrects your inflated self-image.' }
+    ],
+    content: [
+      { h: 'The five phases' },
+      { ol: [
+        'Diaphragmatic Reset \u2014 4 min. Box breathing + descending "ahh" tones.',
+        'Resonance & Articulation \u2014 5 min. Lip trills, siren hum, over-articulated reading.',
+        'Logic-Thread Drill \u2014 6 min. Two 2-minute structured answers on random topics.',
+        'Body-Language Rep \u2014 3 min. Mirror work: pre-speech cue, visible hands, held pause.',
+        'Playback & Self-Review \u2014 2 min. Voice-memo one rep, note one win and one fix.'
+      ] },
+      'Run it from the Today\u2019s Session tab \u2014 each phase has its own timer, and completing the routine logs a session automatically. Progression is manual: nothing auto-advances, so you finish each phase on your own terms.',
+      { h: 'Minimum Viable Day' },
+      'On a bad day, don\u2019t skip \u2014 shrink. A Minimum Viable Day is one breath reset, one small exposure, and one tracker line. It protects the streak and the identity without demanding the full 20 minutes. A Minimum Viable Day is a win.'
+    ],
+    examples: [
+      { h: 'What "done" looks like per phase' },
+      { ul: [
+        'Reset: hand on belly rises on the inhale; tones feel supported.',
+        'Resonance: no vocal fatigue; consonants crisp at normal pace.',
+        'Logic: conclusion stated in sentence one, unprompted, both topics.',
+        'Body: the 2-second pause doesn\u2019t make you look away or fidget.',
+        'Playback: you can name one specific, fixable thing.'
+      ] }
+    ],
+    practice: [
+      { ol: [
+        'Run the full five-phase routine from Today\u2019s Session.',
+        'On low-capacity days, run a Minimum Viable Day instead of skipping.',
+        'Fill one tracker line at the end of every day \u2014 it takes under a minute.'
+      ] }
+    ],
+    reflection: [
+      'Which phase do you most want to skip \u2014 and is that avoidance or genuine redundancy?',
+      'Did the playback step surprise you versus how the rep felt in the moment?'
+    ]
+  },
+  {
+    num: 4, title: 'Breath & Voice', subtitle: 'Lower arousal, build supported projection',
+    objective: 'Turn breath and resonance into on-command tools you can reach for before and during any speaking moment.',
+    why: 'Anxiety flattens pitch and shrinks breath support \u2014 both are trainable motor patterns, not fixed traits. Diaphragmatic breathing also directly lowers the fight-or-flight arousal that triggers the freeze, before you\u2019ve said a word.',
+    science: [
+      { tier: 't1', text: 'Diaphragmatic breathing \u2014 lowers sympathetic arousal before a speech task.' },
+      { tier: 't1', text: 'Vocal Function Exercises / resonant voice (Stemple) \u2014 controlled projection without strain.' },
+      { tier: 't2', text: 'Prosody training \u2014 restores pitch variation that anxiety flattens.' }
+    ],
+    content: [
+      { h: 'Box breathing (the reset)' },
+      '4-4-4-4: inhale 4, hold 4, exhale 4, hold 4. Four rounds. Shoulders stay down \u2014 if they rise, you\u2019re breathing from the chest. Small, quiet belly breaths outperform big dramatic ones.',
+      { h: 'Resonance ladder' },
+      { ul: [
+        'Lip trills \u2014 steady breath support without forcing volume. Hum them to a song\u2019s melody (Vinh).',
+        'Siren hum \u2014 low \u2192 high \u2192 low, gliding through your range.',
+        'Yawn-Ahhh (Vinh) \u2014 start a yawn, hold the lifted soft palate, voice an "ahh." Opens the space a tight throat closes off.'
+      ] },
+      { h: 'Pre-speech ritual' },
+      'One diaphragmatic breath, hands visible, one open pre-speech cue (nod or eyebrow lift), and know your first sentence. Four seconds, every time, before anything that matters.'
+    ],
+    examples: [
+      { h: 'Before-speaking checklist' },
+      { ul: ['Hands visible', 'One open pre-speech cue', 'One diaphragmatic breath', 'You know your first sentence'] }
+    ],
+    practice: [
+      { ol: [
+        'Box breathing \u00d74 + 10 descending "ahh" tones before every practice block.',
+        '90 sec lip trills, 90 sec siren hum, 2 min over-articulated reading.',
+        'Run the full pre-speech ritual before one real interaction this week.'
+      ] },
+      { note: 'Volume comes from breath support, not the throat. If you feel strain or fatigue, you\u2019re forcing it.' }
+    ],
+    reflection: [
+      'Where do you feel the breath \u2014 belly or chest? Be honest.',
+      'Did the pre-speech ritual change the first three seconds of a real conversation?'
+    ]
+  },
+  {
+    num: 5, title: 'Articulation & Pacing', subtitle: 'Rate control, clarity, and the rhetorical pause',
+    objective: 'Make a slower, clearer, more deliberate delivery your default \u2014 especially under pressure.',
+    why: 'Rushing under pressure increases disfluency and cognitive load at the same time. Slowing down is a lever you can pull on command, unlike "just relax." Paired with eye contact, a slower rate reads as control, not hesitation.',
+    science: [
+      { tier: 't2', text: 'Rate control / pacing \u2014 fluency-shaping technique from stuttering therapy.' },
+      { tier: 't3', text: 'Behavioral rehearsal \u2014 deliberate reps under mild pressure transfer to real speech.' }
+    ],
+    content: [
+      { h: 'Rate control' },
+      'Read a paragraph aloud at ~70% of your normal speed, recorded. Then repeat at normal pace holding the same articulation. The goal is a rate you can drop into deliberately when you feel yourself speeding up.',
+      { h: 'Over-articulation' },
+      'Exaggerate every consonant reading aloud, then repeat at normal pace holding the same jaw opening. This builds crispness that survives when nerves try to mumble it away.',
+      { h: 'The rhetorical pause' },
+      'A full stop after a strong statement (Vusi\u2019s 2\u20133 seconds) reads as authority, not a blank. It\u2019s also your cleanest recovery tool \u2014 a deliberate pause is far easier to recover from than a rushed correction.'
+    ],
+    examples: [
+      { h: 'Earliest cue you\u2019re rushing' },
+      'Usually a physical tell \u2014 breath goes shallow, or the last word of each sentence clips. Name yours, and use it as the trigger to drop back to your controlled rate.'
+    ],
+    practice: [
+      { ol: [
+        'Daily: one paragraph at 70% speed (recorded), then at normal pace with the same articulation.',
+        'Deliver a 90-second PREP answer at the reduced rate.',
+        'Use one deliberate rhetorical pause in a real conversation this week.'
+      ] },
+      { note: 'Don\u2019t slow down so far it reads as hesitant \u2014 anchor the slower rate with steady eye contact.' }
+    ],
+    reflection: [
+      'Did the slower rate survive a real conversation, or speed back up?',
+      'What\u2019s the earliest physical cue that you\u2019re about to rush?'
+    ]
+  },
+  {
+    num: 6, title: 'Logic Frameworks', subtitle: 'Structure answers so the point comes first',
+    objective: 'Have a structure ready for any spoken answer, so you never meander in search of your own point.',
+    why: 'Leading with your conclusion reduces listener load and removes the meandering search-for-the-point that reads as hesitance under pressure. A structure is a skeleton you fill live \u2014 not a script you recite.',
+    science: [
+      { tier: 't3', text: 'Pyramid Principle (Minto) \u2014 practitioner consensus, a strong default not a law.' },
+      { tier: 't3', text: 'Behavioral rehearsal \u2014 structured reps build a retrievable pattern under pressure.' }
+    ],
+    content: [
+      { h: 'Four frameworks, four uses' },
+      { ul: [
+        'PREP \u2014 Point, Reason, Example, Point. The default for opinions and answers.',
+        'Pyramid Principle \u2014 Conclusion \u2192 Because \u2192 For example \u2192 Therefore. For structured explanations.',
+        'Feynman \u2014 explain it to a 12-year-old; where you reach for jargon is the gap you don\u2019t understand.',
+        'Story (STAR) \u2014 Situation, Task, Action, Result. For anecdotes and experience questions.'
+      ] },
+      'Full step-by-step versions of each live in the Reference Library. Here, the skill is choosing the right one fast and filling it live.'
+    ],
+    examples: [
+      { h: 'PREP in action' },
+      '"We should ship Friday. (Point) The remaining bugs are cosmetic, not functional. (Reason) The checkout flow, the one that matters, passed every test yesterday. (Example) So Friday. (Point)"',
+      { h: 'Feynman catches the gap' },
+      'Explaining JWT auth, if you say "it\u2019s signed" and can\u2019t say what signing prevents \u2014 that\u2019s the gap. Feynman surfaces it before an audience does.'
+    ],
+    practice: [
+      { ol: [
+        'Conclusion-first drill: three random topics daily, 2 minutes each, recorded. Conclusion \u2192 Because \u2192 Example \u2192 Therefore.',
+        'Pick one technical concept and run it through Feynman until no jargon remains.',
+        'Use the answer-first structure once, unrehearsed, in a real conversation.'
+      ] },
+      { note: 'Over-structuring until it sounds scripted is the failure mode \u2014 the structure is a skeleton, not a script.' }
+    ],
+    reflection: [
+      'Where did the structure break down \u2014 the "because," the "example," or the "therefore"?',
+      'Did leading with the answer change how people responded to you?'
+    ]
+  },
+  {
+    num: 7, title: 'Recovery Protocol', subtitle: 'PACE+ and decision trees for when it breaks',
+    objective: 'Have an automatic, rehearsed response for every failure mode, so a freeze becomes a clean recovery instead of a spiral.',
+    why: 'You will freeze sometimes \u2014 the goal was never zero freezes. The goal is that a freeze costs you two seconds and a clean restart, not the whole conversation. A rehearsed recovery is what separates a stumble from a spiral.',
+    science: [
+      { tier: 't1', text: 'Behavioral rehearsal of a competing response \u2014 pre-drilled recovery fires when it\u2019s needed.' },
+      { tier: 't1', text: 'Self-efficacy (Bandura) \u2014 each logged clean recovery is evidence you can handle the next one.' }
+    ],
+    content: [
+      { h: 'PACE+ \u2014 the core loop' },
+      { ol: [
+        'Pause \u2014 stop completely, 1\u20132 sec. Don\u2019t push through a jumbled sentence.',
+        'Accept \u2014 "I\u2019m thinking," not "I\u2019m failing." Reset posture, soften the jaw.',
+        'Continue \u2014 restart from your last complete idea, slower, in English, with an anchor phrase.',
+        'End clean \u2014 finish the sentence. No apology.',
+        '+ Language Lock \u2014 restart is always in English, even mid-stumble.'
+      ] },
+      { h: 'Decision trees by failure mode' },
+      'Each specific failure has its own two-or-three-step tree \u2014 forgot the sentence, blanked completely, got interrupted, lost eye contact, switched to Pidgin. Drill them from the Reference Library so the right one fires without deliberation.',
+      { h: 'Before / During / After' },
+      { ul: [
+        'Before: pre-speech ritual + know your first sentence.',
+        'During: PACE+ on any break. Don\u2019t narrate the freeze.',
+        'After: log freeze count, whether recovery succeeded, one thing that worked, one to adjust.'
+      ] }
+    ],
+    examples: [
+      { h: 'Blanked completely' },
+      'One diaphragmatic breath (buys 2 seconds legitimately) \u2192 say your conclusion again ("The point is\u2026"), which re-anchors you and the listener \u2192 rebuild from the conclusion outward.'
+    ],
+    practice: [
+      { ol: [
+        'Memorize PACE+ until you can run it without looking.',
+        'Rehearse each decision tree aloud once from the Reference Library.',
+        'After any real freeze, log it in Current Exposure \u2014 a logged freeze with a clean recovery is a success.'
+      ] },
+      { note: 'You don\u2019t have to win the argument with your anxiety in the moment. If the reframe doesn\u2019t land live, use it in the post-mortem.' }
+    ],
+    reflection: [
+      'Which failure mode happens to you most \u2014 and is its decision tree automatic yet?',
+      'When you last froze, did you recover clean or spiral? What was the difference?'
+    ]
+  },
+  {
+    num: 8, title: 'Exposure Ladder', subtitle: '14 ranked rungs, logged and tracked',
+    objective: 'Climb a ranked ladder of real-world speaking exposures, logging anxiety and recovery at every rung.',
+    why: 'Ranked, repeated exposure is the single most replicated intervention for a fear response. The ladder turns a vague "get more confident" into a concrete next action \u2014 and the log turns your progress into something you can actually see.',
+    science: [
+      { tier: 't1', text: 'Graded exposure hierarchy (Wolpe) \u2014 systematic desensitization, decades of replication.' },
+      { tier: 't1', text: 'Self-efficacy (Bandura) \u2014 mastery experiences are the strongest source of confidence.' }
+    ],
+    content: [
+      { h: 'How to climb' },
+      'Attempt the lowest rung you haven\u2019t cleared. Completion matters, not the outcome \u2014 a rung "counts" if you attempted it in English without escaping to Pidgin, regardless of how it went. Repeat a rung until the anxiety-before drops, then move up.',
+      { h: 'Log every attempt' },
+      'Each attempt records anxiety before (1\u201310), anxiety after (1\u201310), freeze count, whether you recovered clean, and notes. Log from the Current Exposure tab. Over time, anxiety-after dropping below anxiety-before is your clearest proof the mechanism is working.',
+      { note: 'Don\u2019t wait to feel calm before a rung. The exposure itself creates the calm \u2014 it is not a precondition.' }
+    ],
+    examples: [
+      { h: 'The 14 rungs' },
+      { ladder: true }
+    ],
+    practice: [
+      { ol: [
+        'Identify the lowest rung you haven\u2019t cleared.',
+        'Attempt it this week and log the attempt in Current Exposure.',
+        'Repeat any rung until anxiety-before drops meaningfully before moving up.'
+      ] }
+    ],
+    reflection: [
+      'Which rung is your current edge \u2014 and what specifically makes it hard (the person, the stakes, the unscriptedness)?',
+      'Across your logged attempts, is anxiety-after trending below anxiety-before yet?'
+    ]
+  },
+  {
+    num: 9, title: 'Technical Communication', subtitle: 'Explain any concept to any audience',
+    objective: 'Explain technical concepts clearly to any audience, from a child to a CEO, on demand.',
+    why: 'Explaining a concept you know cold removes the "do I understand this?" anxiety and isolates the delivery skill. Varying the audience forces you to adjust register live \u2014 the exact flexibility real conversations demand.',
+    science: [
+      { tier: 't3', text: 'Feynman technique \u2014 teaching to a novice surfaces gaps in your own understanding.' },
+      { tier: 't3', text: 'Behavioral rehearsal \u2014 varied-audience reps build register-switching under pressure.' }
+    ],
+    content: [
+      { h: 'Four audiences' },
+      { ul: [
+        'Child \u2014 one everyday analogy, zero jargon.',
+        'Mother (smart non-technical adult) \u2014 plain language, why it matters to her.',
+        'Engineer \u2014 precise, the tradeoffs and edge cases.',
+        'CEO \u2014 the bottom line first, cost/benefit, one sentence.'
+      ] },
+      { h: 'Topic rotation' },
+      'Cycle these concepts, each explained to a different audience: Binary Search, HTTP, JWT, React rendering, SQL JOIN, Git branching, API vs Library, Debugging Workflow. Rotate audience and topic daily so no pairing gets memorized.'
+    ],
+    examples: [
+      { h: 'SQL JOIN, four ways' },
+      { ul: [
+        'Child: "Two sticker books, matched by the stickers they share."',
+        'Mother: "Combining two lists by a column they have in common, like matching orders to customers."',
+        'Engineer: "Inner vs outer join semantics, null handling on the outer side, index on the join key."',
+        'CEO: "It\u2019s how we connect two datasets to answer one question \u2014 fast if indexed, slow if not."'
+      ] }
+    ],
+    practice: [
+      { ol: [
+        'Pick one topic daily; explain it to a non-technical friend in under 2 minutes, English only, no notes.',
+        'Then re-explain the same topic to a different audience from the four above.',
+        'Record one explanation and review it for jargon leaks (the Feynman gaps).'
+      ] }
+    ],
+    reflection: [
+      'Which audience is hardest for you \u2014 and what does that reveal about your default register?',
+      'Which topic exposed a real gap in your own understanding when you tried to simplify it?'
+    ]
+  },
+  {
+    num: 10, title: 'Role Models', subtitle: 'Framings to apply the mechanics in your own voice',
+    objective: 'Borrow specific, concrete framings from strong speakers \u2014 as inspiration, never as an accent or personality to copy.',
+    why: 'The underlying mechanisms \u2014 breath, structure, pausing \u2014 are already trained at Tier 1\u20132. Role models are just useful language for applying them in your own voice. Treat them as inspiration, not evidence.',
+    science: [
+      { tier: 't4', text: 'Role-model techniques \u2014 observed patterns in individuals, not independently tested. Tier 4: inspiration only.' }
+    ],
+    content: [
+      { h: 'Vusi Thembekwayo \u2014 gravitas through structure' },
+      { ul: [
+        'Tripartite structure: Point \u2192 Counterpoint \u2192 Synthesis.',
+        'Ground every abstract claim in one concrete example.',
+        'A 2\u20133 second deliberate pause right after a strong statement.'
+      ] },
+      { h: 'Mehdi Hasan \u2014 interruption control' },
+      { ul: [
+        'Acknowledge-redirect: "Right, and here\u2019s the piece that matters\u2014"',
+        'The boundary: "Let me finish this thought, then I\u2019ll take that\u2014"',
+        'The deflection: "That\u2019s a separate question \u2014 let\u2019s come back to it."'
+      ] },
+      { h: 'Vinh Giang \u2014 vocal mechanics' },
+      { ul: [
+        'Yawn-Ahhh to open resonance.',
+        'Lip trills to a song\u2019s melody for breath support.',
+        'Over-articulation, then normal pace holding the same jaw opening.'
+      ] }
+    ],
+    examples: [
+      { note: 'The goal is never to copy their delivery, cadence, or accent. The goal is your own calm, authentic voice, using their framings as scaffolding.' }
+    ],
+    practice: [
+      { ol: [
+        'Borrow one Vusi structure for a Logic-Thread drill this week.',
+        'Rehearse one Mehdi boundary line until it\u2019s automatic.',
+        'Add one Vinh vocal drill to your Resonance phase.'
+      ] }
+    ],
+    reflection: [
+      'Which single framing actually fits your voice \u2014 and which felt like costume?',
+      'Are you borrowing a mechanism (good) or imitating a personality (a trap)?'
+    ]
+  },
+  {
+    num: 11, title: 'Handling Interruptions', subtitle: 'Hold the floor without switching or escalating',
+    objective: 'Stay in English and keep your point when you\u2019re interrupted, challenged, or tested.',
+    why: 'Interruptions and challenges are peak-pressure moments \u2014 exactly where the freeze and the switch fire. Pre-scripted boundary lines let you hold the floor calmly, without conceding your point or escalating into conflict.',
+    science: [
+      { tier: 't2', text: 'Cognitive flexibility rehearsal \u2014 arguing both sides trains real-time adaptability.' },
+      { tier: 't3', text: 'Behavioral rehearsal \u2014 pre-drilled boundary lines fire under pressure.' }
+    ],
+    content: [
+      { h: 'Boundary statements (Mehdi scripts)' },
+      { ul: [
+        '"Let me finish this thought, then I\u2019ll take that\u2014" \u2014 polite, firm, doesn\u2019t concede the floor.',
+        '"Right, and here\u2019s the piece that matters\u2014" \u2014 absorbs the interruption, pivots back.',
+        '"That\u2019s a separate question \u2014 let\u2019s come back to it." \u2014 for a derail, not a genuine engagement.'
+      ] },
+      { h: 'The steelman drill' },
+      'State the strongest version of the opposing view before you answer it. It reads as confidence, disarms the challenger, and pressure-tests your own position \u2014 it does not mean abandoning it.',
+      { h: 'Intent matching' },
+      'Read whether an interruption is genuine engagement or a derail, and respond in kind. Engage the real question; deflect the derail. Matching intent keeps you calm because you\u2019re responding to what\u2019s actually happening, not to the adrenaline.'
+    ],
+    examples: [
+      { h: 'Steelman in one line' },
+      '"The strongest case against shipping Friday is that a cosmetic bug in the demo could cost us the client \u2014 and I\u2019d still ship, because the client sees the checkout flow, not the demo."'
+    ],
+    practice: [
+      { ol: [
+        'Memorize the three boundary lines until they\u2019re automatic.',
+        'Run one steelman drill: pick a view you hold, state the opposite\u2019s strongest form, then answer it.',
+        'Handle one real interruption this week without switching to Pidgin (ladder rung 9).'
+      ] }
+    ],
+    reflection: [
+      'When interrupted, do you concede the floor, freeze, or hold \u2014 and which line would have helped?',
+      'Can you state the strongest opposing view to something you believe, fairly?'
+    ]
+  },
+  {
+    num: 12, title: 'Maintenance', subtitle: 'The long-term operating system',
+    objective: 'Keep the gains indefinitely with a light maintenance rhythm and a written relapse-prevention plan.',
+    why: 'A program that ends without a maintenance plan usually reverts. Self-efficacy is built from accumulated evidence, so maintenance is about manufacturing that evidence on a schedule \u2014 not grinding forever. Finishing the modules is the start of maintenance, not the finish line.',
+    science: [
+      { tier: 't1', text: 'Relapse prevention planning (Marlatt & Gordon) \u2014 CBT maintenance-phase protocol.' },
+      { tier: 't1', text: 'Self-efficacy theory (Bandura) \u2014 maintained through periodic mastery experiences.' }
+    ],
+    content: [
+      { h: 'Weekly maintenance dose' },
+      { ul: [
+        'One real exposure at or near your current ceiling.',
+        'One recorded baseline rep, compared against your earliest recording.',
+        'A glance at Analytics \u2014 recovery rate and anxiety trend should hold or improve.'
+      ] },
+      { h: 'Relapse-prevention plan (write it once, revisit quarterly)' },
+      { ol: [
+        'Name your top 2 highest-risk situations going forward.',
+        'For each, pre-commit to the exact protocol you\u2019ll run (usually PACE+ + English Lock).',
+        'Define your early-warning sign of drift (e.g. switch-count creeping back up).',
+        'Decide the trigger that sends you back to a specific module for a refresher.'
+      ] },
+      { h: 'This is an OS, not a course' },
+      'Re-read this module every few weeks. Revisit any earlier module when its skill feels rusty. The tracker and analytics keep running for years \u2014 that long baseline is the whole point.'
+    ],
+    examples: [
+      { h: 'Baseline comparison' },
+      'Re-record the exact first exercise you ever did. Compare side by side \u2014 filler count, pace, freeze count. The difference you can hear immediately is the evidence that sustains the habit.'
+    ],
+    practice: [
+      { ol: [
+        'Write your one-page relapse-prevention plan now.',
+        'Schedule a weekly maintenance exposure and put it in the tracker.',
+        'Re-record your Week-1 baseline and log the comparison.'
+      ] },
+      { note: 'Treating "done with the modules" as the finish line is the classic relapse trigger. This phase is ongoing.' }
+    ],
+    reflection: [
+      'What changed between your earliest and latest recording that you can hear immediately?',
+      'What are your top 2 highest-risk situations, and what protocol runs in each?'
+    ]
+  }
+];
+
+/* ============================================================================
+   2. UTILITIES
+   ========================================================================== */
+const $  = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+
+function esc(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function clamp(n, lo, hi){ n = Number(n); if(Number.isNaN(n)) n = lo; return Math.min(hi, Math.max(lo, n)); }
+function todayISO(){ return new Date().toISOString(); }
+function dayKey(d){ const x = new Date(d); return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0'); }
+function fmtDate(iso){
+  if(!iso) return '\u2014';
+  const d = new Date(iso);
+  return d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
+}
+function fmtDateTime(iso){
+  if(!iso) return '\u2014';
+  const d = new Date(iso);
+  return d.toLocaleDateString(undefined,{month:'short',day:'numeric'}) + ', ' +
+         d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
+}
+function relDays(iso){
+  if(!iso) return '\u2014';
+  const diff = Math.floor((Date.now() - new Date(iso)) / 86400000);
+  if(diff <= 0) return 'today';
+  if(diff === 1) return 'yesterday';
+  return diff + ' days ago';
+}
+function mmss(sec){
+  const neg = sec < 0; sec = Math.abs(sec);
+  const m = Math.floor(sec/60), s = sec%60;
+  return (neg?'+':'') + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+}
+function debounce(fn, ms){
+  let t; return function(...a){ clearTimeout(t); t = setTimeout(() => fn.apply(this,a), ms); };
+}
+function download(filename, text, mime){
+  const blob = new Blob([text], { type: mime || 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+}
+
+/* ============================================================================
+   2b. LADDER HELPERS (read-only accessors \u2014 all mutation happens in the
+   Settings > Ladder editor, and always goes through save()/saveNow())
+   ========================================================================== */
+function getLadder(){ return state.ladder.slice().sort((a,b) => a.order - b.order); }
+function rungById(id){ return state.ladder.find(r => r.id === id) || null; }
+function rungName(id){ const r = rungById(id); return r ? r.name : '(deleted rung)'; }
+function rungPosition(id){ const ord = getLadder(); const i = ord.findIndex(r => r.id === id); return i < 0 ? null : i + 1; }
+
+/* ============================================================================
+   3. STORAGE
+   ========================================================================== */
+function defaultState(){
+  return {
+    version: CONFIG.VERSION,
+    created: todayISO(),
+    settings: { currentDay: 1, currentWeek: 1, lastBackupAt: null },
+    moduleCompletions: {},   // { m1: ISO, ... }
+    reflections: {},         // { m1: "text", ... }
+    sessions: [],            // routine session logs
+    // ladder: user-editable, seeded from DEFAULT_LADDER. `order` is the stable
+    // Display Order (manual, only changes when the user reorders it).
+    ladder: DEFAULT_LADDER.map((r, i) => ({ id: r.id, name: r.name, order: i })),
+    exposureLogs: []         // exposure attempts \u2014 see exposureLogShape() below for the structured fields
+  };
+}
+
+/* Canonical shape of one exposure log entry, per the frozen spec. Kept as one
+   place so validateState/migrateState/the form all agree on field names. */
+function exposureLogShape(overrides){
+  return Object.assign({
+    id: uid(),
+    date: todayISO(),
+    rungId: '',
+    target: '',
+    predictedAnxiety: 5,
+    actualBefore: 5,
+    actualAfter: 5,
+    difference: 0,
+    freezeCount: 0,
+    englishOnly: true,
+    recovered: true,
+    recoveryMethod: '',
+    evidence: [],
+    notes: ''
+  }, overrides || {});
+}
+
+/* Validate the *shape* of an imported / stored object against the CURRENT
+   (v2.0.0) schema. Assumes migrateState() has already run. Returns a clean
+   state or null \u2014 never throws, never trusts the input. */
+function validateState(obj){
+  if(!obj || typeof obj !== 'object') return null;
+  if(typeof obj.version !== 'string') return null;
+  const clean = defaultState();
+  clean.version = obj.version;
+  clean.created = typeof obj.created === 'string' ? obj.created : todayISO();
+  if(obj.settings && typeof obj.settings === 'object'){
+    clean.settings.currentDay  = clamp(obj.settings.currentDay ?? 1, 1, 100000);
+    clean.settings.currentWeek = clamp(obj.settings.currentWeek ?? 1, 1, CONFIG.TOTAL_WEEKS);
+    clean.settings.lastBackupAt = typeof obj.settings.lastBackupAt === 'string' ? obj.settings.lastBackupAt : null;
+  }
+  if(obj.moduleCompletions && typeof obj.moduleCompletions === 'object' && !Array.isArray(obj.moduleCompletions)){
+    for(const k of Object.keys(obj.moduleCompletions)){
+      if(/^m\d{1,2}$/.test(k) && typeof obj.moduleCompletions[k] === 'string') clean.moduleCompletions[k] = obj.moduleCompletions[k];
+    }
+  }
+  if(obj.reflections && typeof obj.reflections === 'object' && !Array.isArray(obj.reflections)){
+    for(const k of Object.keys(obj.reflections)){
+      if(/^m\d{1,2}$/.test(k) && typeof obj.reflections[k] === 'string') clean.reflections[k] = String(obj.reflections[k]).slice(0, 8000);
+    }
+  }
+  if(Array.isArray(obj.sessions)){
+    clean.sessions = obj.sessions.filter(s => s && typeof s === 'object' && typeof s.date === 'string').map(s => ({
+      id: typeof s.id === 'string' ? s.id : uid(),
+      date: s.date,
+      type: s.type === 'routine' ? 'routine' : 'routine',
+      phases: Array.isArray(s.phases) ? s.phases.map(p => ({ id:String(p.id||''), name:String(p.name||''), status: p.status === 'skip' ? 'skip' : 'done' })) : [],
+      completedCount: clamp(s.completedCount ?? 0, 0, 99),
+      skippedCount: clamp(s.skippedCount ?? 0, 0, 99),
+      durationPlanned: clamp(s.durationPlanned ?? 0, 0, 100000),
+      notes: typeof s.notes === 'string' ? s.notes.slice(0,2000) : ''
+    }));
+  }
+
+  // ---- Ladder: array of {id, name, order}. Falls back to the default seed
+  // if missing/malformed, so an old or corrupt save still boots into a usable ladder.
+  if(Array.isArray(obj.ladder) && obj.ladder.length){
+    const seen = new Set();
+    clean.ladder = obj.ladder
+      .filter(r => r && typeof r === 'object' && typeof r.id === 'string' && typeof r.name === 'string' && r.name.trim())
+      .map((r, i) => ({ id: r.id, name: r.name.slice(0, 300), order: clamp(r.order ?? i, 0, 100000) }))
+      .filter(r => { if(seen.has(r.id)) return false; seen.add(r.id); return true; })
+      .sort((a,b) => a.order - b.order)
+      .map((r, i) => ({ ...r, order: i })); // renumber to a clean, gapless 0..n-1 sequence
+  }
+  const validIds = new Set(clean.ladder.map(r => r.id));
+
+  // ---- Exposure logs: structured fields only, per the frozen spec.
+  if(Array.isArray(obj.exposureLogs)){
+    clean.exposureLogs = obj.exposureLogs
+      .filter(e => e && typeof e === 'object' && typeof e.date === 'string')
+      .map(e => {
+        const rungId = (typeof e.rungId === 'string' && validIds.has(e.rungId)) ? e.rungId : (clean.ladder[0] ? clean.ladder[0].id : '');
+        const actualBefore = clamp(e.actualBefore ?? 5, 1, 10);
+        const actualAfter  = clamp(e.actualAfter ?? 5, 1, 10);
+        return {
+          id: typeof e.id === 'string' ? e.id : uid(),
+          date: e.date,
+          rungId,
+          target: typeof e.target === 'string' ? e.target.slice(0, 500) : '',
+          predictedAnxiety: clamp(e.predictedAnxiety ?? actualBefore, 1, 10),
+          actualBefore,
+          actualAfter,
+          difference: actualAfter - actualBefore,
+          freezeCount: clamp(e.freezeCount ?? 0, 0, 999),
+          englishOnly: typeof e.englishOnly === 'boolean' ? e.englishOnly : true,
+          recovered: typeof e.recovered === 'boolean' ? e.recovered : true,
+          recoveryMethod: typeof e.recoveryMethod === 'string' ? e.recoveryMethod.slice(0, 200) : '',
+          evidence: Array.isArray(e.evidence) ? e.evidence.filter(x => typeof x === 'string').map(x => x.slice(0,300)).slice(0, 50) : [],
+          notes: typeof e.notes === 'string' ? e.notes.slice(0,2000) : ''
+        };
+      });
+  }
+  return clean;
+}
+
+/* ----------------------------------------------------------------------
+   Migrations. Each function transforms the PREVIOUS version's raw object
+   into the NEXT version's shape. migrateState() chains whichever of these
+   apply, then validateState() does the final defensive clean/clamp pass.
+   This is the seam future versions hook into \u2014 add a migrateTo_X_Y_Z()
+   and one more `if` below it; never delete an old one.
+   ---------------------------------------------------------------------- */
+
+/* v1.0.0 -> v2.0.0: introduces the editable ladder and the rich exposure-log
+   schema. Every old field is preserved somewhere \u2014 nothing is silently
+   dropped, even where the old shape doesn't map 1:1 onto the new one. */
+function migrateTo_2_0_0(obj){
+  // Build the ladder: v1 had no state.ladder at all, so seed it from the
+  // same defaults the app always shipped with.
+  const ladder = DEFAULT_LADDER.map((r, i) => ({ id: r.id, name: r.name, order: i }));
+
+  const exposureLogs = Array.isArray(obj.exposureLogs) ? obj.exposureLogs.map(e => {
+    // Old logs stored a 1-based numeric `rung` against the fixed array position.
+    const oldRung = clamp(e.rung ?? 1, 1, ladder.length);
+    const rung = ladder[oldRung - 1] || ladder[0];
+    // Old schema had no distinct "predicted" anxiety (felt before deciding to
+    // attempt it) vs "actual before" (felt right before doing it) \u2014 only one
+    // "before" value. Use it for both; it's the closest honest default.
+    const actualBefore = clamp(e.anxietyBefore ?? 5, 1, 10);
+    const actualAfter  = clamp(e.anxietyAfter ?? 5, 1, 10);
+    // Old `recovery` was a 3-state enum (clean/partial/none); new schema is a
+    // boolean + free-text method. Map clean/partial -> recovered, and fold the
+    // "partial" nuance into notes rather than lose it.
+    const recovered = e.recovery !== 'none';
+    const partialNote = e.recovery === 'partial' ? '[migrated: recovery was partial]' : '';
+    const notes = [typeof e.notes === 'string' ? e.notes : '', partialNote].filter(Boolean).join(' ').trim();
+    return exposureLogShape({
+      id: typeof e.id === 'string' ? e.id : uid(),
+      date: e.date,
+      rungId: rung.id,
+      target: typeof e.rungName === 'string' && e.rungName ? e.rungName : rung.name,
+      predictedAnxiety: actualBefore,
+      actualBefore,
+      actualAfter,
+      difference: actualAfter - actualBefore,
+      freezeCount: clamp(e.freezeCount ?? 0, 0, 999),
+      englishOnly: true,        // not tracked pre-2.0.0; default per spec
+      recovered,
+      recoveryMethod: '',       // not tracked pre-2.0.0
+      evidence: [],             // not tracked pre-2.0.0
+      notes
+    });
+  }) : [];
+
+  return Object.assign({}, obj, { version: '2.0.0', ladder, exposureLogs });
+}
+
+/* Migrate older schema versions forward, one step at a time. */
+function migrateState(obj){
+  if(!obj || typeof obj !== 'object') return obj;
+  if(obj.version === '1.0.0'){ obj = migrateTo_2_0_0(obj); }
+  // Next migration hooks in here, e.g.:
+  // if(obj.version === '2.0.0'){ obj = migrateTo_2_1_0(obj); }
+  return obj;
+}
+
+const Storage = {
+  load(){
+    let raw;
+    try { raw = localStorage.getItem(CONFIG.STORAGE_KEY); }
+    catch(e){ toast('Storage is unavailable \u2014 progress won\u2019t be saved this session.', 'error'); return defaultState(); }
+    if(!raw) return defaultState();
+    let parsed;
+    try { parsed = JSON.parse(raw); }
+    catch(e){
+      // Corrupted JSON: preserve the bad copy, start clean rather than crash.
+      try { localStorage.setItem(CONFIG.STORAGE_KEY + '-corrupt-' + Date.now(), raw); } catch(_){}
+      toast('Saved data was unreadable and has been reset. A backup copy was kept.', 'error');
+      return defaultState();
+    }
+    const migrated = migrateState(parsed);
+    const valid = validateState(migrated);
+    if(!valid){
+      try { localStorage.setItem(CONFIG.STORAGE_KEY + '-corrupt-' + Date.now(), raw); } catch(_){}
+      toast('Saved data was in an unexpected format and has been reset.', 'error');
+      return defaultState();
+    }
+    return valid;
+  },
+  _writeNow(st){
+    try { localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(st)); }
+    catch(e){ toast('Could not save \u2014 storage may be full.', 'error'); }
+  },
+  export(st){
+    const name = 'communication-os-' + dayKey(new Date()) + '.json';
+    download(name, JSON.stringify(st, null, 2), 'application/json');
+  },
+  reset(){
+    try { localStorage.removeItem(CONFIG.STORAGE_KEY); } catch(e){}
+  }
+};
+
+/* ============================================================================
+   4. APP STATE & DERIVED STATISTICS
+   ========================================================================== */
+let state = defaultState();
+const _debouncedWrite = debounce(() => Storage._writeNow(state), 220);
+function save(){ _debouncedWrite(); }
+function saveNow(){ Storage._writeNow(state); }
+
+function moduleKey(num){ return 'm' + num; }
+function isModuleDone(num){ return !!state.moduleCompletions[moduleKey(num)]; }
+
+function activeDates(){
+  const set = new Set();
+  state.sessions.forEach(s => set.add(dayKey(s.date)));
+  state.exposureLogs.forEach(e => set.add(dayKey(e.date)));
+  return set;
+}
+function computeStreak(){
+  const dates = activeDates();
+  if(dates.size === 0) return 0;
+  let streak = 0;
+  const cur = new Date();
+  // grace: if nothing today but something yesterday, streak still counts from yesterday
+  if(!dates.has(dayKey(cur))){
+    cur.setDate(cur.getDate() - 1);
+    if(!dates.has(dayKey(cur))) return 0;
+  }
+  while(dates.has(dayKey(cur))){ streak++; cur.setDate(cur.getDate() - 1); }
+  return streak;
+}
+/* Highest Display-Order position any logged exposure currently maps to.
+   Uses the *current* ladder order, so if the user reorders rungs later this
+   reflects that \u2014 there's no separate "historical position" to keep in sync. */
+function highestRungPos(){
+  let m = 0;
+  state.exposureLogs.forEach(e => { const p = rungPosition(e.rungId); if(p && p > m) m = p; });
+  return m;
+}
+/* Suggests which rung to preselect in the log form. This never writes
+   anything \u2014 it's a computed default, not a ladder mutation. */
+function currentRungId(){
+  const ladder = getLadder();
+  if(!ladder.length) return null;
+  const h = highestRungPos();
+  if(h === 0) return ladder[0].id;
+  const topRung = ladder[h-1] || ladder[ladder.length-1];
+  const atTop = state.exposureLogs.filter(e => e.rungId === topRung.id).sort((a,b)=> new Date(b.date)-new Date(a.date));
+  const latest = atTop[0];
+  if(latest && latest.actualAfter <= 4 && latest.recovered && h < ladder.length) return ladder[h].id;
+  return topRung.id;
+}
+function currentRungPos(){ return rungPosition(currentRungId()) || 1; }
+function recoveryRate(logs){
+  logs = logs || state.exposureLogs;
+  if(!logs.length) return null;
+  const recovered = logs.filter(e => e.recovered === true).length;
+  return Math.round((recovered / logs.length) * 100);
+}
+function withinDays(iso, n){ return (Date.now() - new Date(iso)) <= n * 86400000; }
+
+function getStats(){
+  const s = state.sessions.slice().sort((a,b)=> new Date(b.date)-new Date(a.date));
+  const e30 = state.exposureLogs.filter(x => withinDays(x.date, 30));
+  const s30 = state.sessions.filter(x => withinDays(x.date, 30));
+  const avg = (arr, k) => arr.length ? Math.round(arr.reduce((t,x)=>t+x[k],0)/arr.length*10)/10 : null;
+  return {
+    day: state.settings.currentDay,
+    week: state.settings.currentWeek,
+    moduleNum: clamp(state.settings.currentWeek, 1, CONFIG.TOTAL_MODULES),
+    modulesDone: Object.keys(state.moduleCompletions).length,
+    rung: currentRungPos(),
+    rungId: currentRungId(),
+    highestRung: highestRungPos(),
+    recovery: recoveryRate(),
+    recovery30: recoveryRate(e30),
+    streak: computeStreak(),
+    lastSession: s[0] ? s[0].date : null,
+    sessionsTotal: state.sessions.length,
+    exposuresTotal: state.exposureLogs.length,
+    sessions30: s30.length,
+    exposures30: e30.length,
+    anxBefore30: avg(e30,'actualBefore'),
+    anxAfter30: avg(e30,'actualAfter'),
+    evidenceToday: state.exposureLogs.filter(e => dayKey(e.date) === dayKey(new Date())).reduce((t,e) => t + (Array.isArray(e.evidence) ? e.evidence.length : 0), 0)
+  };
+}
+
+/* ---- Ladder mutation helpers (the ONLY functions allowed to change
+   state.ladder \u2014 always user-triggered, never automatic) ---- */
+function ladderAddRung(name){
+  name = String(name || '').trim();
+  if(!name) return false;
+  const maxOrder = state.ladder.reduce((m,r) => Math.max(m, r.order), -1);
+  state.ladder.push({ id: uid(), name: name.slice(0,300), order: maxOrder + 1 });
+  return true;
+}
+function ladderRenameRung(id, name){
+  name = String(name || '').trim();
+  if(!name) return false;
+  const r = rungById(id);
+  if(!r) return false;
+  r.name = name.slice(0,300);
+  return true;
+}
+function ladderRemoveRung(id){
+  state.ladder = state.ladder.filter(r => r.id !== id);
+  // renumber so order stays a clean, gapless sequence
+  getLadder().forEach((r, i) => { rungById(r.id).order = i; });
+  return true;
+}
+function ladderMove(id, dir){ // dir: -1 up, +1 down
+  const ordered = getLadder();
+  const i = ordered.findIndex(r => r.id === id);
+  const j = i + dir;
+  if(i < 0 || j < 0 || j >= ordered.length) return false;
+  const a = ordered[i], b = ordered[j];
+  const tmp = a.order; rungById(a.id).order = rungById(b.id).order; rungById(b.id).order = tmp;
+  return true;
+}
+/* Current Difficulty (SUDS-style): purely informational, recomputed from
+   ratings every render. Deliberately NOT the same thing as Display Order,
+   which only moves when the user drags/clicks a rung \u2014 this can bounce
+   around session to session without the UI feeling unstable, because it's
+   shown as a badge, not a position. */
+function rungDifficulty(id){
+  const logs = state.exposureLogs.filter(e => e.rungId === id);
+  if(!logs.length) return null;
+  const avg = logs.reduce((t,e)=>t+e.actualAfter,0) / logs.length;
+  return { avg: Math.round(avg*10)/10, n: logs.length };
+}
+/* Conservative, advisory-only recommendation. Never applied automatically \u2014
+   the Ladder editor just shows this as a suggestion the user can act on or ignore. */
+function ladderRecommendation(id){
+  const logs = state.exposureLogs.filter(e => e.rungId === id).sort((a,b)=> new Date(b.date)-new Date(a.date));
+  if(logs.length < CONFIG.RECOMMEND_SAMPLE) return null;
+  const recent = logs.slice(0, CONFIG.RECOMMEND_SAMPLE);
+  const avgAfter = recent.reduce((t,e)=>t+e.actualAfter,0) / recent.length;
+  if(avgAfter > CONFIG.RECOMMEND_THRESHOLD) return null;
+  const pos = rungPosition(id);
+  if(pos === 1) return null; // already at the top of the ladder
+  return 'This situation has averaged ' + (Math.round(avgAfter*10)/10) + '/10 anxiety over the last ' + recent.length + ' completed exposures. Consider moving it lower in your ladder.';
+}
+
+/* ============================================================================
+   5. TOASTS & MODALS
+   ========================================================================== */
+function toast(msg, type){
+  const wrap = $('#toastWrap');
+  if(!wrap) return;
+  const t = document.createElement('div');
+  t.className = 'toast' + (type ? ' ' + type : '');
+  const icon = type === 'success' ? '\u2713' : type === 'error' ? '\u2715' : type === 'warn' ? '!' : '\u2192';
+  t.innerHTML = '<span class="ti">' + icon + '</span><span>' + esc(msg) + '</span>';
+  wrap.appendChild(t);
+  setTimeout(() => {
+    t.classList.add('leaving');
+    setTimeout(() => t.remove(), 200);
+  }, 3400);
+}
+
+function confirmModal(opts){
+  const root = $('#modalRoot');
+  root.innerHTML =
+    '<div class="modal-back" id="modalBack">' +
+      '<div class="modal" role="dialog" aria-modal="true">' +
+        '<h3>' + esc(opts.title) + '</h3>' +
+        '<p>' + esc(opts.body) + '</p>' +
+        '<div class="btn-row">' +
+          '<button class="btn ghost" id="mCancel">' + esc(opts.cancelLabel || 'Cancel') + '</button>' +
+          '<button class="btn ' + (opts.danger ? 'danger' : 'primary') + '" id="mOk">' + esc(opts.confirmLabel || 'Confirm') + '</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  const close = () => { root.innerHTML = ''; };
+  $('#mCancel').onclick = () => { close(); opts.onCancel && opts.onCancel(); };
+  $('#mOk').onclick = () => { close(); opts.onConfirm && opts.onConfirm(); };
+  $('#modalBack').onclick = (ev) => { if(ev.target.id === 'modalBack') close(); };
+}
+
+/* ============================================================================
+   6. NAVIGATION (sidebar tree, breadcrumbs, tabs, status bar)
+   ========================================================================== */
+const NAV = [
+  { label: 'Dashboard', icon: '\uD83C\uDFE0', route: '#/dashboard' },
+  { label: "Today's Session", icon: '\u25B6', route: '#/session', children: [
+    { label: 'Daily Routine',    route: '#/session/routine' },
+    { label: 'Current Module',   route: '#/session/module' },
+    { label: 'Current Exposure', route: '#/session/exposure' }
+  ]},
+  { label: 'Learn', icon: '\uD83D\uDCDA', route: '#/learn', children:
+    MODULES.map(m => ({ label: m.num + '. ' + m.title, route: '#/learn/m' + m.num, moduleNum: m.num }))
+  },
+  { label: 'Reference Library', icon: '\uD83D\uDEE0', route: '#/reference', children: [
+    { label: 'Frameworks',  route: '#/reference/frameworks' },
+    { label: 'Role Models', route: '#/reference/rolemodels' },
+    { label: 'Recovery',    route: '#/reference/recovery' },
+    { label: 'FAQ',         route: '#/reference/faq' }
+  ]},
+  { label: 'Progress', icon: '\uD83D\uDCC8', route: '#/progress', children: [
+    { label: 'Tracker',         route: '#/progress/tracker' },
+    { label: 'Session History', route: '#/progress/history' },
+    { label: 'Analytics',       route: '#/progress/analytics' }
+  ]},
+  { label: 'Settings', icon: '\u2699', route: '#/settings', children: [
+    { label: 'Ladder',           route: '#/settings', scroll: 'set-ladder' },
+    { label: 'Export',           route: '#/settings', scroll: 'set-export' },
+    { label: 'Import',           route: '#/settings', scroll: 'set-import' },
+    { label: 'Reset',            route: '#/settings', scroll: 'set-reset' },
+    { label: 'Day / Week',       route: '#/settings', scroll: 'set-adjust' }
+  ]}
+];
+
+const collapsed = {};   // nav group collapse state (in-memory)
+
+function buildNav(){
+  const tree = $('#navTree');
+  const cur = location.hash || '#/dashboard';
+  let html = '';
+  NAV.forEach((group, gi) => {
+    const key = 'g' + gi;
+    if(group.children){
+      const isCol = collapsed[key];
+      const anyActive = cur.startsWith(group.route);
+      html += '<div class="nav-group ' + (isCol ? 'collapsed' : '') + '" data-gkey="' + key + '">';
+      html += '<button class="nav-head" data-toggle="' + key + '"><span class="chev">\u25BC</span>' + esc(group.label) + '</button>';
+      html += '<div class="nav-items">';
+      html += '<button class="nav-item ' + (cur === group.route ? 'active' : '') + '" data-route="' + group.route + '"><span class="ico">' + group.icon + '</span>' + esc(group.label) + '</button>';
+      group.children.forEach(ch => {
+        const active = cur === ch.route || (ch.moduleNum && cur === '#/learn/m' + ch.moduleNum);
+        const done = ch.moduleNum && isModuleDone(ch.moduleNum);
+        html += '<button class="nav-item sub ' + (active ? 'active' : '') + '" data-route="' + ch.route + '"' + (ch.scroll ? ' data-scroll="' + ch.scroll + '"' : '') + '>' +
+                '<span class="ico">\u203A</span>' + esc(ch.label) +
+                (done ? '<span class="badge">\u2713</span>' : '') + '</button>';
+      });
+      html += '</div></div>';
+    } else {
+      html += '<div class="nav-group"><button class="nav-item ' + (cur === group.route ? 'active' : '') + '" data-route="' + group.route + '"><span class="ico">' + group.icon + '</span>' + esc(group.label) + '</button></div>';
+    }
+  });
+  tree.innerHTML = html;
+}
+
+function updateChrome(meta){
+  // breadcrumbs
+  const bc = $('#breadcrumbs');
+  const crumbs = meta.breadcrumb || [];
+  bc.innerHTML = crumbs.map((c,i) =>
+    (i ? '<span class="sep">\u203A</span>' : '') +
+    '<span class="crumb' + (i === crumbs.length-1 ? ' cur' : '') + '">' + esc(c) + '</span>'
+  ).join('');
+  // status bar
+  renderStatusBar();
+  // nav active state
+  buildNav();
+}
+
+function renderStatusBar(){
+  const st = getStats();
+  const sb = $('#statusbar');
+  const rec = st.recovery == null ? '\u2014' : st.recovery + '%';
+  sb.innerHTML =
+    '<div class="seg" data-route="#/session/routine">Day ' + st.day + '</div>' +
+    '<div class="seg hide-sm" data-route="#/learn">Week ' + st.week + ' / 12</div>' +
+    '<div class="seg hide-sm" data-route="#/session/exposure">Rung ' + st.rung + '</div>' +
+    '<div class="spacer"></div>' +
+    '<div class="seg hide-sm" data-route="#/progress/analytics">Recovery ' + rec + '</div>' +
+    '<div class="seg" data-route="#/progress/analytics">\uD83D\uDD25 ' + st.streak + '-day streak</div>' +
+    '<div class="seg muted">v' + CONFIG.VERSION + '</div>';
+}
+
+/* ============================================================================
+   BLOCK RENDERER (module content blocks)
+   ========================================================================== */
+function renderBlocks(arr){
+  if(!Array.isArray(arr)) return '';
+  return arr.map(b => {
+    if(typeof b === 'string') return '<p>' + esc(b) + '</p>';
+    if(b.h)   return '<div class="h-sub">' + esc(b.h) + '</div>';
+    if(b.note)return '<div class="card accent" style="margin:8px 0 14px"><p style="margin:0;color:var(--text)">' + esc(b.note) + '</p></div>';
+    if(b.ul)  return '<ul>' + b.ul.map(li => '<li>' + esc(li) + '</li>').join('') + '</ul>';
+    if(b.ol)  return '<ol style="margin:6px 0 0 20px">' + b.ol.map(li => '<li style="margin-bottom:6px">' + esc(li) + '</li>').join('') + '</ol>';
+    if(b.pair)return '<div class="qref" style="border-left-color:var(--warning)"><div class="step"><b style="color:var(--error)">\u2717</b> ' + esc(b.pair[0]) + '</div><div class="step"><b style="color:var(--success)">\u2192</b> ' + esc(b.pair[1]) + '</div></div>';
+    if(b.ladder) return renderLadderList();
+    return '';
+  }).join('');
+}
+function renderLadderList(){
+  const h = highestRungPos();
+  return '<div class="ladder">' + getLadder().map((r, i) => {
+    const pos = i + 1;
+    return '<div class="rung"><span class="n">' + String(pos).padStart(2,'0') + '</span>' +
+      '<span class="name">' + esc(r.name) + '</span>' +
+      '<span class="tag ' + (pos <= h ? 'done' : 'todo') + '">' + (pos <= h ? 'attempted' : '\u2014') + '</span></div>';
+  }).join('') + '</div>';
+}
+function tierBadge(t){
+  const names = { t1:'TIER 1', t2:'TIER 2', t3:'TIER 3', t4:'TIER 4', t5:'TIER 5' };
+  return '<span class="tier ' + t + '">' + (names[t]||t) + '</span>';
+}
+
+/* ============================================================================
+   7. ROUTER
+   ========================================================================== */
+let _teardown = null;
+
+function parseHash(){
+  const raw = (location.hash || '#/dashboard').replace(/^#\//,'');
+  return raw.split('/').filter(Boolean);
+}
+
+function render(){
+  if(_teardown){ try { _teardown(); } catch(e){} _teardown = null; }
+  const seg = parseHash();
+  const root = seg[0] || 'dashboard';
+  let meta;
+  try {
+    switch(root){
+      case 'dashboard': meta = viewDashboard(); break;
+      case 'session':   meta = viewSession(seg[1] || 'routine'); break;
+      case 'learn':     meta = seg[1] ? viewModule(seg[1]) : viewLearnList(); break;
+      case 'reference': meta = viewReference(seg[1] || 'frameworks'); break;
+      case 'progress':  meta = viewProgress(seg[1] || 'tracker'); break;
+      case 'settings':  meta = viewSettings(); break;
+      default:          location.hash = '#/dashboard'; return;
+    }
+  } catch(err){
+    console.error(err);
+    meta = { file:'error', breadcrumb:['Error'], html:'<div class="empty"><div class="big">\u26A0</div><p>Something went wrong rendering this view. Your data is safe. Try reloading.</p></div>' };
+  }
+  const view = $('#view');
+  view.innerHTML = meta.html;
+  updateChrome(meta);
+  $('#editorScroll').scrollTop = 0;
+  if(meta.mount){ _teardown = meta.mount(view) || null; }
+  // pending scroll (settings sub-nav)
+  if(window.__scrollTo){
+    const tgt = $('#' + window.__scrollTo);
+    window.__scrollTo = null;
+    if(tgt) tgt.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+  // close mobile nav after navigation
+  $('#app').classList.remove('nav-open');
+}
+
+function navigate(hash){ if(location.hash === hash){ render(); } else { location.hash = hash; } }
+
+/* ============================================================================
+   8. VIEW: DASHBOARD
+   ========================================================================== */
+function quoteOfDay(){
+  const idx = (state.settings.currentDay - 1) % QUOTES.length;
+  return QUOTES[(idx + QUOTES.length) % QUOTES.length];
+}
+function needsBackup(){
+  const hasData = state.sessions.length + state.exposureLogs.length > 0;
+  if(!hasData) return false;
+  const last = state.settings.lastBackupAt;
+  if(!last) return true;
+  return !withinDays(last, CONFIG.BACKUP_REMINDER_DAYS);
+}
+
+function greeting(){ const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'; }
+
+let _ringId = 0;
+function ring(pct, value, label){
+  pct = Math.max(0, Math.min(100, pct));
+  const r = 64, c = 2*Math.PI*r, off = c*(1 - pct/100), id = 'rg' + (++_ringId);
+  return '<div class="ring"><svg viewBox="0 0 150 150" aria-hidden="true">' +
+    '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4ec9b0"/><stop offset="1" stop-color="#7c9dff"/></linearGradient></defs>' +
+    '<circle class="track" cx="75" cy="75" r="' + r + '"/>' +
+    '<circle class="fill" cx="75" cy="75" r="' + r + '" stroke="url(#' + id + ')" stroke-dasharray="' + c.toFixed(1) + '" stroke-dashoffset="' + off.toFixed(1) + '"/>' +
+    '</svg><div class="ring-center"><div class="ring-val">' + esc(value) + '</div><div class="ring-lbl">' + esc(label) + '</div></div></div>';
+}
+
+function viewDashboard(){
+  const st = getStats();
+  const rec = st.recovery == null ? '\u2014' : st.recovery + '%';
+  const cm = MODULES[st.moduleNum-1];
+  const backup = needsBackup()
+    ? '<div class="card accent"><div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap"><div style="flex:1;min-width:220px"><b style="color:var(--warning)">Backup reminder</b><p style="margin:6px 0 0;color:var(--text-2);font-size:14.5px">It\u2019s been a while since your last export. Save a JSON backup so months of progress can\u2019t be lost.</p></div><button class="btn warn sm" data-action="export">Export backup</button></div></div>'
+    : '';
+  const streakPct = st.streak > 0 ? Math.min(100, Math.round(st.streak/21*100)) : 0;
+  const html =
+    '<div class="hero">' +
+      '<div class="hero-main">' +
+        '<div class="hero-eyebrow">' + greeting() + '</div>' +
+        '<h1 class="hero-title">Ready when you are.</h1>' +
+        '<p class="hero-sub">This isn\u2019t a language problem \u2014 it\u2019s a performance-under-pressure pattern. Your writing is already fluent; this trains the response, not the vocabulary.</p>' +
+        '<div class="hero-actions">' +
+          '<button class="btn primary big" data-action="start-session">Start today\u2019s session</button>' +
+          '<div class="hero-chips"><span class="chip">Module <b>' + st.moduleNum + '</b> \u00b7 ' + esc(cm.title) + '</span><span class="chip">Rung <b>' + st.rung + '</b></span></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="hero-side">' + ring(streakPct, st.streak, st.streak === 1 ? 'day streak' : 'day streak') + '</div>' +
+    '</div>' +
+    backup +
+    '<div class="grid g4">' +
+      stat('Recovery rate', rec, st.exposuresTotal + ' logged') +
+      stat('Speaking streak', st.streak + (st.streak === 1 ? ' day' : ' days')) +
+      stat('Current rung', 'Rung ' + st.rung, esc(rungName(st.rungId)), true) +
+      stat('Modules done', st.modulesDone + ' / 12') +
+    '</div>' +
+    '<div class="card accent"><div class="mfield" style="margin:0"><div class="flabel">Continue \u2014 Module ' + st.moduleNum + '</div><div style="font-size:18px;font-weight:700;letter-spacing:-.01em;margin-bottom:5px">' + esc(cm.title) + '</div><p class="muted" style="margin:0 0 16px;font-size:14.5px;max-width:62ch">' + esc(cm.objective) + '</p><button class="btn sm" data-route="#/learn/m' + st.moduleNum + '">Open module \u2192</button></div></div>' +
+    '<div class="card"><div class="flabel" style="color:var(--accent);font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin-bottom:9px">Evidence Collected Today</div>' +
+      (st.evidenceToday > 0
+        ? '<p style="margin:0;font-size:16.5px;color:var(--text)">' + st.evidenceToday + ' piece' + (st.evidenceToday===1?'':'s') + ' of evidence logged today.</p>'
+        : '<p class="muted" style="margin:0 0 12px;font-size:15px">What evidence did today give you? Log an exposure to record it \u2014 specifics, not a feeling.</p><button class="btn sm" data-route="#/session/exposure">Log an exposure</button>') +
+    '</div>' +
+    '<div class="card"><div class="flabel" style="color:var(--accent);font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin-bottom:9px">Today\u2019s note</div><p style="margin:0;font-size:16.5px;color:var(--text);line-height:1.6">\u201C' + esc(quoteOfDay()) + '\u201D</p></div>' +
+    '<h2 class="h-section">Last 30 days</h2>' +
+    '<div class="grid g4">' +
+      stat('Sessions', st.sessions30, 'logged') +
+      stat('Exposures', st.exposures30, 'logged') +
+      stat('Avg anxiety before', st.anxBefore30 == null ? '\u2014' : st.anxBefore30, 'scale 1\u201310') +
+      stat('Avg anxiety after', st.anxAfter30 == null ? '\u2014' : st.anxAfter30, 'scale 1\u201310') +
+    '</div>' +
+    (st.anxBefore30 != null && st.anxAfter30 != null
+      ? '<p class="muted" style="font-size:15px">Over the last 30 days your anxiety dropped an average of <span class="hl">' + (Math.round((st.anxBefore30 - st.anxAfter30)*10)/10) + ' points</span> from before to after an exposure. That gap is the mechanism working.</p>'
+      : '<p class="faint" style="font-size:15px">Log a few exposures to unlock your anxiety trend here.</p>');
+  return { breadcrumb: ['Dashboard'], html, mount(){} };
+}
+function stat(k, v, sub, small){
+  return '<div class="stat hoverable"><div class="k">' + esc(k) + '</div><div class="v' + (small ? ' sm' : '') + '">' + (small ? v : esc(v)) + '</div>' + (sub ? '<div class="sub">' + esc(sub) + '</div>' : '') + '</div>';
+}
+
+/* ============================================================================
+   9. VIEW: TODAY'S SESSION  +  10. ROUTINE TIMER ENGINE
+   ========================================================================== */
+let routineState = null;   // ephemeral per-session progress; survives tab switches
+let routineInterval = null;
+let routineViewMounted = false;     // true only while the Daily Routine sub-view is on screen
+let routineAutoPausedIndex = -1;    // phase index auto-paused by backgrounding the browser tab, so we know to resume only that
+
+function initRoutine(force){
+  if(force || !routineState){
+    routineState = ROUTINE_PHASES.map(p => ({ status:'pending', remaining:p.minutes*60, running:false }));
+  }
+}
+function routineResolvedCount(){ return routineState.filter(p => p.status !== 'pending').length; }
+
+function viewSession(tab){
+  const tabs = ['routine','module','exposure'];
+  if(tabs.indexOf(tab) < 0) tab = 'routine';
+  const labels = { routine:'Daily Routine', module:'Current Module', exposure:'Current Exposure' };
+  const tabHtml = '<div class="tabs">' + tabs.map(t =>
+    '<button class="' + (t === tab ? 'active' : '') + '" data-route="#/session/' + t + '">' + labels[t] + '</button>'
+  ).join('') + '</div>';
+
+  let body = '', mountFn = null;
+  if(tab === 'routine'){ const r = sessionRoutine(); body = r.html; mountFn = r.mount; }
+  else if(tab === 'module'){ body = sessionModule(); }
+  else { const e = sessionExposure(); body = e.html; mountFn = e.mount; }
+
+  return {
+    file: 'session/' + tab + '.md',
+    breadcrumb: ["Today's Session", labels[tab]],
+    html: '<h1 class="h-page">\u25B6 Today\u2019s Session</h1>' + tabHtml + '<div id="sessionBody">' + body + '</div>',
+    mount(view){ return mountFn ? mountFn(view) : null; }
+  };
+}
+
+/* ---- Daily Routine sub-view ---- */
+function sessionRoutine(){
+  initRoutine(false);
+  return {
+    html:
+      '<p class="lede">Five phases, 20 minutes. Run each timer, complete or skip on your own terms \u2014 nothing auto-advances. Finishing logs a session to your history.</p>' +
+      '<div id="phaseList">' + renderPhaseList() + '</div>' +
+      '<div class="btn-row" style="margin-top:8px">' +
+        '<button class="btn primary" id="finishSession">Finish &amp; log session</button>' +
+        '<button class="btn ghost" id="resetRoutine">Reset routine</button>' +
+        '<span class="pill" id="routineProgress" style="align-self:center">' + routineResolvedCount() + ' / 5 phases</span>' +
+      '</div>',
+    mount(view){
+      wireRoutine(view);
+      routineViewMounted = true;
+      if(routineInterval) clearInterval(routineInterval);
+      routineInterval = setInterval(routineTick, 1000);
+      return () => {
+        routineViewMounted = false;
+        routineAutoPausedIndex = -1;
+        if(routineInterval){ clearInterval(routineInterval); routineInterval = null; }
+      };
+    }
+  };
+}
+
+/* Pause the running phase the moment the browser tab is backgrounded (not just when you
+   navigate to another in-app section, which already stops the interval via the mount
+   teardown above) \u2014 and resume it, and only it, once the tab is visible again. */
+document.addEventListener('visibilitychange', () => {
+  if(!routineViewMounted || !routineState) return;
+  if(document.hidden){
+    const i = routineState.findIndex(p => p.running);
+    if(i >= 0){
+      routineState[i].running = false;
+      routineAutoPausedIndex = i;
+    }
+    if(routineInterval){ clearInterval(routineInterval); routineInterval = null; }
+  } else {
+    if(routineAutoPausedIndex >= 0 && routineState[routineAutoPausedIndex]){
+      routineState[routineAutoPausedIndex].running = true;
+      routineAutoPausedIndex = -1;
+    }
+    if(!routineInterval) routineInterval = setInterval(routineTick, 1000);
+    refreshPhaseList();
+  }
+});
+
+function renderPhaseList(){
+  return ROUTINE_PHASES.map((p, i) => {
+    const rs = routineState[i];
+    const cls = rs.status === 'done' ? 'done' : (rs.running ? 'active' : '');
+    const statusTag = rs.status === 'done' ? '<span class="phase-status s-done">completed</span>'
+                    : rs.status === 'skip' ? '<span class="phase-status s-skip">skipped</span>' : '';
+    const timerCls = rs.running ? 'run' : (rs.remaining < 0 ? 'over' : '');
+    return '<div class="phase ' + cls + '" data-i="' + i + '">' +
+      '<div class="phase-top">' +
+        '<div class="phase-num">' + p.num + '</div>' +
+        '<div><div class="phase-title">' + esc(p.name) + '</div><div class="phase-dur">' + p.minutes + ' min guide</div></div>' +
+        statusTag +
+      '</div>' +
+      '<div class="timer ' + timerCls + '" id="timer-' + i + '">' + mmss(rs.remaining) + '</div>' +
+      '<div class="phase-body">' + p.instructions.map(x => '<div class="cue">\u2022 ' + esc(x) + '</div>').join('') + '</div>' +
+      '<div class="phase-meta">' +
+        '<div class="m"><div class="ml">Common mistake</div>' + esc(p.mistake) + '</div>' +
+        '<div class="m"><div class="ml">Success cue</div>' + esc(p.cue) + '</div>' +
+      '</div>' +
+      '<div class="btn-row">' +
+        '<button class="btn sm" data-r="start" data-i="' + i + '"' + (rs.running ? ' disabled' : '') + '>Start</button>' +
+        '<button class="btn sm" data-r="pause" data-i="' + i + '"' + (!rs.running ? ' disabled' : '') + '>Pause</button>' +
+        '<button class="btn sm ghost" data-r="reset" data-i="' + i + '">Reset</button>' +
+        '<button class="btn sm warn" data-r="skip" data-i="' + i + '">Skip</button>' +
+        '<button class="btn sm success" data-r="complete" data-i="' + i + '">Complete</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function refreshPhaseList(){
+  const el = $('#phaseList');
+  if(el){ el.innerHTML = renderPhaseList(); wirePhaseButtons(el); }
+  const prog = $('#routineProgress');
+  if(prog) prog.textContent = routineResolvedCount() + ' / 5 phases';
+}
+
+function wireRoutine(view){
+  wirePhaseButtons(view);
+  const finish = $('#finishSession', view);
+  if(finish) finish.onclick = finishSession;
+  const reset = $('#resetRoutine', view);
+  if(reset) reset.onclick = () => confirmModal({
+    title:'Reset routine?', body:'This clears the timers and phase progress for the current routine. It won\u2019t touch your logged history.',
+    confirmLabel:'Reset', onConfirm:() => { initRoutine(true); refreshPhaseList(); toast('Routine reset.'); }
+  });
+}
+function wirePhaseButtons(root){
+  $$('[data-r]', root).forEach(btn => {
+    btn.onclick = () => {
+      const i = Number(btn.dataset.i), act = btn.dataset.r, rs = routineState[i];
+      if(act === 'start'){ routineState.forEach(p => p.running = false); rs.running = true; rs.status = 'pending'; }
+      else if(act === 'pause'){ rs.running = false; }
+      else if(act === 'reset'){ rs.running = false; rs.remaining = ROUTINE_PHASES[i].minutes*60; rs.status = 'pending'; }
+      else if(act === 'skip'){ rs.running = false; rs.status = 'skip'; }
+      else if(act === 'complete'){ rs.running = false; rs.status = 'done'; }
+      refreshPhaseList();
+    };
+  });
+}
+function routineTick(){
+  if(!routineState) return;
+  const i = routineState.findIndex(p => p.running);
+  if(i < 0) return;
+  routineState[i].remaining -= 1;
+  const span = $('#timer-' + i);
+  if(span){
+    span.textContent = mmss(routineState[i].remaining);
+    span.className = 'timer ' + (routineState[i].remaining < 0 ? 'over' : 'run');
+  }
+}
+function finishSession(){
+  const resolved = routineResolvedCount();
+  const doIt = () => {
+    const phases = ROUTINE_PHASES.map((p,i) => ({ id:p.id, name:p.name, status: routineState[i].status === 'done' ? 'done' : 'skip' }));
+    const done = phases.filter(p => p.status === 'done').length;
+    state.sessions.push({
+      id: uid(), date: todayISO(), type:'routine', phases,
+      completedCount: done, skippedCount: 5 - done,
+      durationPlanned: ROUTINE_PHASES.reduce((t,p)=>t+p.minutes,0), notes:''
+    });
+    save();
+    initRoutine(true);
+    refreshPhaseList();
+    renderStatusBar();
+    buildNav();
+    toast('Session saved to history.', 'success');
+  };
+  if(resolved < 5){
+    confirmModal({ title:'Finish with unfinished phases?', body:'You have ' + (5-resolved) + ' phase(s) still pending. Finishing now logs them as skipped.', confirmLabel:'Log session', onConfirm:doIt });
+  } else doIt();
+}
+
+/* ---- Current Module sub-view ---- */
+function sessionModule(){
+  const num = clamp(state.settings.currentWeek, 1, CONFIG.TOTAL_MODULES);
+  const m = MODULES[num-1];
+  return '<p class="lede">Your current module, tied to week ' + state.settings.currentWeek + '. Work through it below, or open the full module in Learn.</p>' +
+    '<div class="btn-row" style="margin-bottom:18px"><button class="btn sm" data-route="#/learn/m' + num + '">Open full module \u2192</button></div>' +
+    renderModuleBody(num);
+}
+
+/* ---- Current Exposure sub-view ---- */
+function sessionExposure(){
+  const rungId = currentRungId();
+  const pos = rungPosition(rungId) || 1;
+  return {
+    html:
+      '<p class="lede">Your current rung on the exposure ladder. Attempt it in the real world, then log how it went \u2014 completion counts, not outcome.</p>' +
+      (rungId
+        ? '<div class="card accent"><div class="k" style="font-size:11px;color:var(--text-2);text-transform:uppercase;letter-spacing:.06em">Current rung</div>' +
+          '<div style="font-size:20px;font-weight:800;color:#fff;margin:4px 0 2px">Rung ' + pos + '</div>' +
+          '<div style="color:var(--text-2)">' + esc(rungName(rungId)) + '</div></div>'
+        : '<div class="empty"><div class="big">\uD83E\uDE9C</div><p>Your ladder is empty. Add at least one rung in Settings \u2192 Ladder before logging an exposure.</p><button class="btn primary" data-route="#/settings" data-scroll="set-ladder">Open ladder editor</button></div>') +
+      (rungId ? exposureForm(rungId) : '') +
+      '<h2 class="h-section">Recent attempts</h2>' +
+      renderExposureRecent(6),
+    mount(view){ return wireExposureForm(view); }
+  };
+}
+
+/* ---- Shared exposure log form (rich schema: target/predicted/actual/evidence) ---- */
+let _exEvidenceDraft = [];   // ephemeral list-in-progress for the Evidence chip field; cleared on mount/save
+
+function exposureForm(defaultRungId){
+  const opts = getLadder().map((r,i) => '<option value="' + esc(r.id) + '"' + (r.id === defaultRungId ? ' selected' : '') + '>Rung ' + (i+1) + ' \u2014 ' + esc(r.name) + '</option>').join('');
+  return '<div class="card"><h3 style="color:#fff;margin-bottom:16px">Log an exposure attempt</h3>' +
+    '<div class="field"><label class="fl">Rung</label><select id="exRung">' + opts + '</select></div>' +
+    '<div class="field"><label class="fl">Target \u2014 what did you actually attempt?</label><input type="text" id="exTarget" placeholder="e.g. Asked the receptionist where the HR office is."></div>' +
+    '<div class="inline-fields">' +
+      '<div class="field"><label class="fl">Predicted anxiety</label><div class="range-wrap"><input type="range" id="exPredicted" min="1" max="10" value="6"><span class="range-val" id="exPredictedV">6</span></div></div>' +
+      '<div class="field"><label class="fl">Actual before</label><div class="range-wrap"><input type="range" id="exBefore" min="1" max="10" value="6"><span class="range-val" id="exBeforeV">6</span></div></div>' +
+      '<div class="field"><label class="fl">Actual after</label><div class="range-wrap"><input type="range" id="exAfter" min="1" max="10" value="4"><span class="range-val" id="exAfterV">4</span></div></div>' +
+    '</div>' +
+    '<div class="inline-fields">' +
+      '<div class="field"><label class="fl">Freeze count</label><input type="number" id="exFreeze" min="0" max="99" value="0"></div>' +
+      '<div class="field"><label class="fl">Recovery method</label><input type="text" id="exMethod" placeholder="e.g. PACE+"></div>' +
+    '</div>' +
+    '<div class="inline-fields">' +
+      '<div class="field checkbox-field"><label class="cl"><input type="checkbox" id="exEnglish" checked> Stayed in English throughout</label></div>' +
+      '<div class="field checkbox-field"><label class="cl"><input type="checkbox" id="exRecovered" checked> Recovered (didn\u2019t stay frozen/stuck)</label></div>' +
+    '</div>' +
+    '<div class="field"><label class="fl">Evidence \u2014 what evidence did today give you?</label>' +
+      '<div class="chip-input"><input type="text" id="exEvidenceInput" placeholder="e.g. Stayed in English"><button type="button" class="btn sm" id="exEvidenceAdd">Add</button></div>' +
+      '<div class="chip-list" id="exEvidenceList"></div>' +
+    '</div>' +
+    '<div class="field"><label class="fl">Notes</label><textarea id="exNotes" placeholder="What happened, what you\u2019d adjust\u2026"></textarea></div>' +
+    '<button class="btn primary" id="exSave">Log attempt</button>' +
+  '</div>';
+}
+function renderEvidenceChips(root){
+  const box = $('#exEvidenceList', root);
+  if(!box) return;
+  box.innerHTML = _exEvidenceDraft.map((ev,i) =>
+    '<span class="chip evc"><span>' + esc(ev) + '</span><button type="button" data-rm="' + i + '" aria-label="Remove">\u00d7</button></span>'
+  ).join('');
+  $$('[data-rm]', box).forEach(b => { b.onclick = () => { _exEvidenceDraft.splice(Number(b.dataset.rm),1); renderEvidenceChips(root); }; });
+}
+function wireExposureForm(root){
+  if(!$('#exRung', root)) return null;   // ladder is empty; nothing to wire
+  _exEvidenceDraft = [];
+  renderEvidenceChips(root);
+  const bind = (id, vid) => { const s = $('#'+id, root), v = $('#'+vid, root); if(s&&v){ s.oninput = () => v.textContent = s.value; } };
+  bind('exPredicted','exPredictedV'); bind('exBefore','exBeforeV'); bind('exAfter','exAfterV');
+
+  const addEvidence = () => {
+    const inp = $('#exEvidenceInput', root);
+    const v = (inp.value || '').trim();
+    if(!v) return;
+    _exEvidenceDraft.push(v.slice(0,300));
+    inp.value = '';
+    renderEvidenceChips(root);
+    inp.focus();
+  };
+  const addBtn = $('#exEvidenceAdd', root);
+  if(addBtn) addBtn.onclick = addEvidence;
+  const evInput = $('#exEvidenceInput', root);
+  if(evInput) evInput.onkeydown = (e) => { if(e.key === 'Enter'){ e.preventDefault(); addEvidence(); } };
+
+  const save = $('#exSave', root);
+  if(save) save.onclick = () => {
+    const rungId = $('#exRung', root).value;
+    if(!rungId){ toast('Pick a rung first.', 'warn'); return; }
+    const actualBefore = clamp($('#exBefore', root).value,1,10);
+    const actualAfter = clamp($('#exAfter', root).value,1,10);
+    state.exposureLogs.push(exposureLogShape({
+      date: todayISO(),
+      rungId,
+      target: ($('#exTarget', root).value || '').trim().slice(0,500) || rungName(rungId),
+      predictedAnxiety: clamp($('#exPredicted', root).value,1,10),
+      actualBefore,
+      actualAfter,
+      difference: actualAfter - actualBefore,
+      freezeCount: clamp($('#exFreeze', root).value,0,999),
+      englishOnly: !!$('#exEnglish', root).checked,
+      recovered: !!$('#exRecovered', root).checked,
+      recoveryMethod: ($('#exMethod', root).value || '').trim().slice(0,200),
+      evidence: _exEvidenceDraft.slice(),
+      notes: ($('#exNotes', root).value || '').trim().slice(0,2000)
+    }));
+    saveNow();
+    _exEvidenceDraft = [];
+    toast('Exposure logged.', 'success');
+    navigate(location.hash);   // re-render current view to reflect new data
+  };
+  return null;
+}
+function renderExposureRecent(limit){
+  const logs = state.exposureLogs.slice().sort((a,b)=> new Date(b.date)-new Date(a.date)).slice(0, limit);
+  if(!logs.length) return '<div class="empty"><div class="big">\uD83E\uDE9C</div><p>No exposures logged yet. Attempt your current rung and record it above \u2014 the first entry starts your trend.</p></div>';
+  return '<div class="tbl-scroll"><table class="data"><thead><tr><th>Date</th><th>Rung</th><th>Target</th><th>Before</th><th>After</th><th>Freeze</th><th>Recovered</th></tr></thead><tbody>' +
+    logs.map(e => '<tr><td>' + fmtDate(e.date) + '</td><td class="strong">' + (rungPosition(e.rungId) || '\u2014') + '</td><td>' + esc(e.target || rungName(e.rungId)) + '</td><td class="num">' + e.actualBefore + '</td><td class="num">' + e.actualAfter + '</td><td class="num">' + e.freezeCount + '</td><td>' + recoveryPill(e.recovered) + '</td></tr>').join('') +
+    '</tbody></table></div>';
+}
+function recoveryPill(recovered){
+  return recovered ? '<span class="pill ok">recovered</span>' : '<span class="pill no">not yet</span>';
+}
+
+/* ============================================================================
+   11. VIEW: LEARN (module list + module page)
+   ========================================================================== */
+function renderModuleBody(num){
+  const m = MODULES[num-1];
+  if(!m) return '<div class="empty"><p>Module not found.</p></div>';
+  const done = isModuleDone(num);
+  const science = m.science.map(s => '<div style="display:flex;gap:10px;align-items:baseline;margin-bottom:8px">' + tierBadge(s.tier) + '<span style="color:var(--text-2);font-size:14px">' + esc(s.text) + '</span></div>').join('');
+  const reflectVal = state.reflections[moduleKey(num)] || '';
+  return '<div class="mfield"><div class="flabel">Objective</div><div class="ftext">' + esc(m.objective) + '</div></div>' +
+    '<div class="mfield"><div class="flabel">Why it matters</div><div class="ftext">' + esc(m.why) + '</div></div>' +
+    '<div class="mfield"><div class="flabel">The science</div>' + science + '</div>' +
+    '<h2 class="h-section">How it works</h2>' + renderBlocks(m.content) +
+    '<h2 class="h-section">Examples</h2>' + renderBlocks(m.examples) +
+    '<h2 class="h-section">Practice</h2>' + renderBlocks(m.practice) +
+    '<h2 class="h-section">Reflection</h2>' +
+    '<ul>' + m.reflection.map(r => '<li>' + esc(r) + '</li>').join('') + '</ul>' +
+    '<div class="field" style="margin-top:14px"><label class="fl">Your notes</label><textarea id="mReflect" data-module="' + num + '" placeholder="Answer the reflection prompts here \u2014 saved automatically.">' + esc(reflectVal) + '</textarea></div>' +
+    '<div class="btn-row" style="margin-top:6px">' +
+      '<button class="btn ' + (done ? 'success' : 'primary') + '" id="mComplete" data-module="' + num + '">' + (done ? '\u2713 Completed \u2014 mark incomplete' : 'Mark module complete') + '</button>' +
+      (num < CONFIG.TOTAL_MODULES ? '<button class="btn ghost" data-route="#/learn/m' + (num+1) + '">Next module \u2192</button>' : '') +
+    '</div>';
+}
+
+function wireModuleBody(root){
+  const ta = $('#mReflect', root);
+  if(ta){
+    const deb = debounce(() => { state.reflections[moduleKey(Number(ta.dataset.module))] = ta.value.slice(0,8000); save(); }, 400);
+    ta.oninput = deb;
+  }
+  const btn = $('#mComplete', root);
+  if(btn) btn.onclick = () => {
+    const num = Number(btn.dataset.module), key = moduleKey(num);
+    if(state.moduleCompletions[key]){ delete state.moduleCompletions[key]; toast('Module marked incomplete.'); }
+    else { state.moduleCompletions[key] = todayISO(); toast('Module complete \u2014 nice work.', 'success'); }
+    saveNow();
+    navigate(location.hash);
+  };
+}
+
+function viewLearnList(){
+  const html = '<h1 class="h-page">\uD83D\uDCDA Learn</h1>' +
+    '<p class="lede">Twelve topic modules. The first pass runs roughly in order \u2014 breath and reframing underpin everything above them. After that, treat these as a reference library and revisit any module when its skill feels rusty.</p>' +
+    '<div class="grid g2">' + MODULES.map(m => {
+      const done = isModuleDone(m.num);
+      return '<button class="stat" data-route="#/learn/m' + m.num + '" style="text-align:left;cursor:pointer;border-left:3px solid ' + (done ? 'var(--success)' : 'var(--border)') + '">' +
+        '<div class="k">Module ' + m.num + (done ? ' \u00b7 <span style="color:var(--success)">done</span>' : '') + '</div>' +
+        '<div class="v sm" style="color:#fff;font-size:16px">' + esc(m.title) + '</div>' +
+        '<div class="sub" style="margin-top:6px;color:var(--text-2)">' + esc(m.subtitle) + '</div>' +
+      '</button>';
+    }).join('') + '</div>';
+  return { file:'learn/index.md', breadcrumb:['Learn'], html, mount(){} };
+}
+
+function viewModule(seg){
+  const num = Number(String(seg).replace(/^m/,''));
+  const m = MODULES[num-1];
+  if(!m) return viewLearnList();
+  return {
+    file: 'learn/m' + num + '-' + m.title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'') + '.md',
+    breadcrumb: ['Learn', 'Module ' + num, m.title],
+    html: '<h1 class="h-page"><span style="color:var(--accent);font-family:var(--mono);font-size:20px">M' + num + '</span> ' + esc(m.title) + '</h1>' +
+          '<p class="lede">' + esc(m.subtitle) + '</p>' + renderModuleBody(num),
+    mount(view){ wireModuleBody(view); }
+  };
+}
+
+/* ============================================================================
+   12. VIEW: REFERENCE LIBRARY
+   ========================================================================== */
+function viewReference(sub){
+  const subs = ['frameworks','rolemodels','recovery','faq'];
+  if(subs.indexOf(sub) < 0) sub = 'frameworks';
+  const labels = { frameworks:'Frameworks', rolemodels:'Role Models', recovery:'Recovery', faq:'FAQ' };
+  const tabHtml = '<div class="tabs">' + subs.map(s =>
+    '<button class="' + (s === sub ? 'active' : '') + '" data-route="#/reference/' + s + '">' + labels[s] + '</button>'
+  ).join('') + '</div>';
+  let body = '';
+  if(sub === 'frameworks') body = refFrameworks();
+  else if(sub === 'rolemodels') body = refRoleModels();
+  else if(sub === 'recovery') body = refRecovery();
+  else body = refFaq();
+  return {
+    file: 'reference/' + sub + '.md',
+    breadcrumb: ['Reference Library', labels[sub]],
+    html: '<h1 class="h-page">\uD83D\uDEE0 Reference Library</h1>' + tabHtml + body,
+    mount(){}
+  };
+}
+
+function refFrameworks(){
+  const cards = FRAMEWORKS.map(f =>
+    '<div class="qref"><h3>' + esc(f.name) + ' ' + tierBadge(f.tag) + '</h3>' +
+    f.steps.map(s => '<div class="step"><b>' + esc(s[0]) + ':</b> ' + esc(s[1]) + '</div>').join('') +
+    '</div>').join('');
+  const tiers = '<h2 class="h-section">Evidence tiers</h2><p class="lede">Every technique is tagged so you know how much to trust it. Tier 1\u20132 is the spine; Tier 4 is inspiration only.</p>' +
+    TIERS.map(t => '<div style="display:flex;gap:12px;align-items:baseline;margin-bottom:8px">' + tierBadge(t[0]) + '<span style="color:var(--text-2);font-size:14px"><b style="color:#fff">' + esc(t[1]) + '</b> \u2014 ' + esc(t[2]) + '</span></div>').join('');
+  const appendix = '<h2 class="h-section">Scientific appendix</h2>' +
+    '<div class="tbl-scroll"><table class="data"><thead><tr><th>Technique</th><th>What it does</th><th>Tier</th><th>Basis</th><th>Use when</th><th>Common misconception</th></tr></thead><tbody>' +
+    APPENDIX.map(r => '<tr><td class="strong">' + esc(r[0]) + '</td><td>' + esc(r[1]) + '</td><td>' + tierBadge(r[2]) + '</td><td>' + esc(r[3]) + '</td><td>' + esc(r[4]) + '</td><td>' + esc(r[5]) + '</td></tr>').join('') +
+    '</tbody></table></div>';
+  return '<p class="lede">The structures you fill live in conversation. Learn to pick one fast \u2014 the framework is a skeleton, never a script.</p>' + cards + tiers + appendix;
+}
+
+function refRoleModels(){
+  return '<p class="lede">Concrete framings for applying the mechanics in your own voice. Tier 4 \u2014 inspiration, not evidence. The goal is never to copy a delivery or accent.</p>' +
+    ROLE_MODELS.map(r =>
+      '<div class="rm"><div class="name">' + esc(r.name) + ' ' + tierBadge('t4') + '</div><div class="desc">' + esc(r.desc) + '</div>' +
+      r.rows.map(row => '<div class="row"><div class="l">' + esc(row[0]) + '</div><div class="t">' + esc(row[1]) + '</div></div>').join('') +
+      '</div>').join('');
+}
+
+function refRecovery(){
+  const trees = RECOVERY.scenarios.map(s =>
+    '<div class="qref"><h3>' + esc(s.sit) + '</h3>' +
+    '<ol style="margin:2px 0 0 18px">' + s.tree.map(t => '<li style="margin-bottom:6px;color:var(--text-2)">' + esc(t) + '</li>').join('') + '</ol></div>').join('');
+  const trigger = '<h2 class="h-section">Trigger map</h2><ul>' + RECOVERY.triggerMap.map(t => '<li>' + esc(t) + '</li>').join('') + '</ul>';
+  const examples = '<h2 class="h-section">Reframes in the moment</h2>' +
+    RECOVERY.examples.map(e => '<div class="qref" style="border-left-color:var(--warning)"><div class="step"><b style="color:var(--error)">\u2717</b> ' + esc(e[0]) + '</div><div class="step"><b style="color:var(--success)">\u2192</b> ' + esc(e[1]) + '</div></div>').join('');
+  return '<p class="lede">Pre-drilled decision trees for each failure mode. Rehearse them aloud so the right one fires without deliberation. A logged freeze with a clean recovery is a success.</p>' +
+    '<h2 class="h-section">Decision trees</h2>' + trees + trigger + examples;
+}
+
+function refFaq(){
+  return '<p class="lede">The questions that come up most.</p>' +
+    FAQ.map(f => '<div class="card"><h3 style="color:#fff;font-size:16px;margin-bottom:8px">' + esc(f.q) + '</h3><p style="margin:0;color:var(--text-2);font-size:14.5px">' + esc(f.a) + '</p></div>').join('');
+}
+
+/* ============================================================================
+   13. VIEW: PROGRESS (Tracker / Session History / Analytics)
+   ========================================================================== */
+let _historyPage = 0;
+
+function viewProgress(sub){
+  const subs = ['tracker','history','analytics'];
+  if(subs.indexOf(sub) < 0) sub = 'tracker';
+  const labels = { tracker:'Tracker', history:'Session History', analytics:'Analytics' };
+  const tabHtml = '<div class="tabs">' + subs.map(s =>
+    '<button class="' + (s === sub ? 'active' : '') + '" data-route="#/progress/' + s + '">' + labels[s] + '</button>'
+  ).join('') + '</div>';
+  let body = '', mountFn = null;
+  if(sub === 'tracker') body = progressTracker();
+  else if(sub === 'history'){ const h = progressHistory(); body = h.html; mountFn = h.mount; }
+  else { const a = progressAnalytics(); body = a.html; mountFn = a.mount; }
+  return {
+    file: 'progress/' + sub + '.md',
+    breadcrumb: ['Progress', labels[sub]],
+    html: '<h1 class="h-page">\uD83D\uDCC8 Progress</h1>' + tabHtml + body,
+    mount(view){ return mountFn ? mountFn(view) : null; }
+  };
+}
+
+/* ---- Tracker: full exposure log table ---- */
+function progressTracker(){
+  const logs = state.exposureLogs.slice().sort((a,b)=> new Date(b.date)-new Date(a.date));
+  if(!logs.length){
+    return '<div class="empty"><div class="big">\uD83E\uDE9C</div><p>Your exposure tracker is empty. Log your first attempt from Today\u2019s Session \u2192 Current Exposure, and it will appear here.</p><button class="btn primary" data-route="#/session/exposure">Log an exposure</button></div>';
+  }
+  const rows = logs.map(e =>
+    '<tr><td>' + fmtDate(e.date) + '</td><td class="strong num">' + (rungPosition(e.rungId) || '\u2014') + '</td><td>' + esc(e.target || rungName(e.rungId)) + '</td>' +
+    '<td class="num">' + e.predictedAnxiety + '</td><td class="num">' + e.actualBefore + '</td><td class="num">' + e.actualAfter + '</td>' +
+    '<td class="num" style="color:' + (e.difference < 0 ? 'var(--success)' : e.difference > 0 ? 'var(--warning)' : 'var(--text-2)') + '">' + (e.difference > 0 ? '+' : '') + e.difference + '</td>' +
+    '<td class="num">' + e.freezeCount + '</td><td>' + (e.englishOnly ? '<span class="pill ok">yes</span>' : '<span class="pill no">no</span>') + '</td>' +
+    '<td>' + recoveryPill(e.recovered) + '</td><td>' + (e.recoveryMethod ? esc(e.recoveryMethod) : '<span class="faint">\u2014</span>') + '</td>' +
+    '<td>' + (e.evidence.length ? esc(e.evidence.join('; ')) : '<span class="faint">\u2014</span>') + '</td>' +
+    '<td>' + (e.notes ? esc(e.notes) : '<span class="faint">\u2014</span>') + '</td></tr>').join('');
+  return '<p class="lede">Every logged exposure attempt, newest first. The \u0394 column shows how much your anxiety moved from before to after \u2014 negative is the mechanism working.</p>' +
+    '<div class="tbl-scroll"><table class="data"><thead><tr><th>Date</th><th>Rung</th><th>Target</th><th>Predicted</th><th>Before</th><th>After</th><th>\u0394</th><th>Freeze</th><th>English</th><th>Recovered</th><th>Method</th><th>Evidence</th><th>Notes</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+    '<div class="btn-row"><button class="btn sm" data-action="export-exposure-csv">Export exposures (CSV)</button></div>';
+}
+
+/* ---- Session history (paginated) ---- */
+function progressHistory(){
+  const PER = 20;
+  const all = state.sessions.slice().sort((a,b)=> new Date(b.date)-new Date(a.date));
+  if(!all.length){
+    return { html:'<div class="empty"><div class="big">\u25B6</div><p>No sessions logged yet. Finish a daily routine and it will appear here \u2014 the history builds the streak on your dashboard.</p><button class="btn primary" data-route="#/session/routine">Start a session</button></div>', mount(){} };
+  }
+  const pages = Math.ceil(all.length / PER);
+  _historyPage = clamp(_historyPage, 0, pages - 1);
+  const slice = all.slice(_historyPage*PER, _historyPage*PER + PER);
+  const rows = slice.map(s => {
+    const dur = s.durationPlanned ? s.durationPlanned + ' min' : '\u2014';
+    return '<tr><td>' + fmtDateTime(s.date) + '</td><td class="strong num">' + s.completedCount + ' / 5</td>' +
+      '<td class="num">' + s.skippedCount + '</td><td class="num">' + dur + '</td>' +
+      '<td>' + s.phases.filter(p=>p.status==='done').map(p=>esc(p.name.split(' ')[0])).join(', ') + '</td></tr>';
+  }).join('');
+  const pager = pages > 1
+    ? '<div class="btn-row" style="align-items:center"><button class="btn sm" data-action="hist-prev"' + (_historyPage===0?' disabled':'') + '>\u2190 Newer</button>' +
+      '<span class="pill">Page ' + (_historyPage+1) + ' / ' + pages + '</span>' +
+      '<button class="btn sm" data-action="hist-next"' + (_historyPage>=pages-1?' disabled':'') + '>Older \u2192</button></div>'
+    : '';
+  return {
+    html: '<p class="lede">' + all.length + ' session' + (all.length===1?'':'s') + ' logged. Consistency here is what builds the streak \u2014 the count matters more than any single day.</p>' +
+      '<div class="tbl-scroll"><table class="data"><thead><tr><th>When</th><th>Completed</th><th>Skipped</th><th>Planned</th><th>Phases done</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+      pager +
+      '<div class="btn-row"><button class="btn sm" data-action="export-sessions-csv">Export sessions (CSV)</button></div>',
+    mount(view){
+      const prev = $('[data-action="hist-prev"]', view), next = $('[data-action="hist-next"]', view);
+      if(prev) prev.onclick = () => { _historyPage--; navigate(location.hash); };
+      if(next) next.onclick = () => { _historyPage++; navigate(location.hash); };
+    }
+  };
+}
+
+/* ---- Analytics (canvas charts) ---- */
+function progressAnalytics(){
+  const exp = state.exposureLogs.slice().sort((a,b)=> new Date(a.date)-new Date(b.date));
+  const hasExp = exp.length > 0;
+  const hasSess = state.sessions.length > 0;
+  if(!hasExp && !hasSess){
+    return { html:'<div class="empty"><div class="big">\uD83D\uDCCA</div><p>Charts unlock once you log a session or an exposure. Run today\u2019s routine or record an attempt, then come back to watch the trend build.</p></div>', mount(){} };
+  }
+  const html =
+    '<p class="lede">The data your memory can\u2019t hold. Trust these trends over how any single conversation felt.</p>' +
+    (hasExp ? chartCard('anxiety','Anxiety before vs after','Each exposure, in order. The after-line settling below the before-line is the core signal.',
+        '<span><i style="background:var(--warning)"></i>Before</span><span><i style="background:var(--accent)"></i>After</span>') : '') +
+    (hasExp ? chartCard('recovery','Recovery rate over time','Rolling share of attempts you recovered cleanly.','') : '') +
+    (hasExp ? chartCard('rung','Exposure ladder progression','Highest rung reached over time \u2014 the climb.','') : '') +
+    (hasSess ? chartCard('activity','Sessions per week','Routine sessions logged, last 8 weeks.','') : '') +
+    '<div class="btn-row"><button class="btn sm" data-action="export-exposure-csv">Export exposures (CSV)</button><button class="btn sm" data-action="export-sessions-csv">Export sessions (CSV)</button></div>';
+  return {
+    html,
+    mount(view){
+      if(hasExp){
+        drawAnxietyChart($('#chart-anxiety', view), exp);
+        drawRecoveryChart($('#chart-recovery', view), exp);
+        drawRungChart($('#chart-rung', view), exp);
+      }
+      if(hasSess) drawActivityChart($('#chart-activity', view), state.sessions);
+      const onResize = debounce(() => {
+        if(hasExp){
+          drawAnxietyChart($('#chart-anxiety', view), exp);
+          drawRecoveryChart($('#chart-recovery', view), exp);
+          drawRungChart($('#chart-rung', view), exp);
+        }
+        if(hasSess) drawActivityChart($('#chart-activity', view), state.sessions);
+      }, 180);
+      window.addEventListener('resize', onResize);
+      return () => window.removeEventListener('resize', onResize);
+    }
+  };
+}
+function chartCard(id, title, note, legend){
+  return '<div class="chart-card"><h3>' + esc(title) + '</h3><div class="cnote">' + esc(note) + '</div>' +
+    '<div class="chart-holder"><canvas id="chart-' + id + '" height="220"></canvas></div>' +
+    (legend ? '<div class="legend">' + legend + '</div>' : '') + '</div>';
+}
+
+/* ============================================================================
+   14. ANALYTICS CHARTS (pure canvas 2D)
+   ========================================================================== */
+const CHART = { pad:{ t:16, r:14, b:28, l:34 }, grid:'rgba(255,255,255,0.06)', text:'#8a8f9e', font:'11px ui-monospace,Consolas,monospace' };
+
+function setupCanvas(cv){
+  if(!cv) return null;
+  const holder = cv.parentElement;
+  const cssW = holder.clientWidth || 600;
+  const cssH = cv.height || 220;
+  const dpr = window.devicePixelRatio || 1;
+  cv.width = cssW * dpr; cv.height = cssH * dpr;
+  cv.style.width = cssW + 'px'; cv.style.height = cssH + 'px';
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,cssW,cssH);
+  return { ctx, w:cssW, h:cssH };
+}
+function axes(ctx, w, h, yMin, yMax, yTicks, xLabels){
+  const p = CHART.pad;
+  const plotW = w - p.l - p.r, plotH = h - p.t - p.b;
+  ctx.strokeStyle = CHART.grid; ctx.fillStyle = CHART.text; ctx.font = CHART.font; ctx.lineWidth = 1;
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for(let i=0;i<=yTicks;i++){
+    const val = yMin + (yMax-yMin)*(i/yTicks);
+    const y = p.t + plotH - plotH*(i/yTicks);
+    ctx.globalAlpha = .5; ctx.beginPath(); ctx.moveTo(p.l, y); ctx.lineTo(p.l+plotW, y); ctx.stroke(); ctx.globalAlpha = 1;
+    ctx.fillText(Math.round(val), p.l - 6, y);
+  }
+  if(xLabels && xLabels.length){
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    const step = Math.max(1, Math.ceil(xLabels.length / 6));
+    xLabels.forEach((lb, i) => {
+      if(i % step !== 0 && i !== xLabels.length-1) return;
+      const x = xLabels.length === 1 ? p.l + plotW/2 : p.l + plotW*(i/(xLabels.length-1));
+      ctx.fillText(lb, x, p.t + plotH + 6);
+    });
+  }
+  return { p, plotW, plotH };
+}
+function plotXY(p, plotW, plotH, i, n, val, yMin, yMax){
+  const x = n === 1 ? p.l + plotW/2 : p.l + plotW*(i/(n-1));
+  const y = p.t + plotH - plotH*((val - yMin)/(yMax - yMin || 1));
+  return [x, y];
+}
+function line(ctx, pts, color, fill){
+  if(!pts.length) return;
+  ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.lineJoin = 'round';
+  ctx.beginPath(); pts.forEach((pt,i) => i ? ctx.lineTo(pt[0],pt[1]) : ctx.moveTo(pt[0],pt[1])); ctx.stroke();
+  ctx.fillStyle = color;
+  pts.forEach(pt => { ctx.beginPath(); ctx.arc(pt[0],pt[1],2.6,0,7); ctx.fill(); });
+}
+
+function drawAnxietyChart(cv, exp){
+  const s = setupCanvas(cv); if(!s) return;
+  const { ctx, w, h } = s;
+  const labels = exp.map(e => fmtDateShort(e.date));
+  const g = axes(ctx, w, h, 0, 10, 5, labels);
+  const before = exp.map((e,i) => plotXY(g.p, g.plotW, g.plotH, i, exp.length, e.actualBefore, 0, 10));
+  const after  = exp.map((e,i) => plotXY(g.p, g.plotW, g.plotH, i, exp.length, e.actualAfter, 0, 10));
+  line(ctx, before, '#e8c37e');
+  line(ctx, after, '#4ec9b0');
+}
+function drawRecoveryChart(cv, exp){
+  const s = setupCanvas(cv); if(!s) return;
+  const { ctx, w, h } = s;
+  let clean = 0;
+  const series = exp.map((e,i) => { if(e.recovered) clean++; return Math.round(clean/(i+1)*100); });
+  const labels = exp.map(e => fmtDateShort(e.date));
+  const g = axes(ctx, w, h, 0, 100, 5, labels);
+  const pts = series.map((v,i) => plotXY(g.p, g.plotW, g.plotH, i, series.length, v, 0, 100));
+  line(ctx, pts, '#4ec9b0');
+}
+function drawRungChart(cv, exp){
+  const s = setupCanvas(cv); if(!s) return;
+  const { ctx, w, h } = s;
+  const ladderLen = Math.max(1, getLadder().length);
+  let peak = 0;
+  const series = exp.map(e => { peak = Math.max(peak, rungPosition(e.rungId) || 0); return peak; });
+  const labels = exp.map(e => fmtDateShort(e.date));
+  const g = axes(ctx, w, h, 0, ladderLen, 7, labels);
+  const pts = series.map((v,i) => plotXY(g.p, g.plotW, g.plotH, i, series.length, v, 0, ladderLen));
+  line(ctx, pts, '#57c98a');
+}
+function drawActivityChart(cv, sessions){
+  const s = setupCanvas(cv); if(!s) return;
+  const { ctx, w, h } = s;
+  // last 8 weeks buckets
+  const weeks = 8;
+  const now = new Date();
+  const buckets = new Array(weeks).fill(0);
+  const labels = [];
+  for(let i=weeks-1;i>=0;i--){
+    const d = new Date(now); d.setDate(d.getDate() - i*7);
+    labels.push((d.getMonth()+1) + '/' + d.getDate());
+  }
+  sessions.forEach(se => {
+    const diffWeeks = Math.floor((now - new Date(se.date)) / (7*86400000));
+    if(diffWeeks >= 0 && diffWeeks < weeks) buckets[weeks-1-diffWeeks]++;
+  });
+  const maxV = Math.max(1, ...buckets);
+  const g = axes(ctx, w, h, 0, maxV, Math.min(maxV,5), labels);
+  const bw = g.plotW / weeks * 0.6;
+  ctx.fillStyle = '#4ec9b0';
+  buckets.forEach((v,i) => {
+    const cx = g.p.l + g.plotW*(i/(weeks-1 || 1));
+    const x = weeks === 1 ? g.p.l + g.plotW/2 - bw/2 : cx - bw/2;
+    const bh = g.plotH * (v/maxV);
+    ctx.fillRect(x, g.p.t + g.plotH - bh, bw, bh);
+  });
+}
+function fmtDateShort(iso){ const d = new Date(iso); return (d.getMonth()+1) + '/' + d.getDate(); }
+
+/* ---- CSV exporters ---- */
+function exportExposureCSV(){
+  if(!state.exposureLogs.length){ toast('No exposures to export yet.', 'warn'); return; }
+  const head = ['date','rung','rungName','target','predictedAnxiety','actualBefore','actualAfter','difference','freezeCount','englishOnly','recovered','recoveryMethod','evidence','notes'];
+  const rows = state.exposureLogs.map(e => {
+    const row = {
+      date: e.date, rung: rungPosition(e.rungId) || '', rungName: rungName(e.rungId), target: e.target,
+      predictedAnxiety: e.predictedAnxiety, actualBefore: e.actualBefore, actualAfter: e.actualAfter, difference: e.difference,
+      freezeCount: e.freezeCount, englishOnly: e.englishOnly, recovered: e.recovered, recoveryMethod: e.recoveryMethod,
+      evidence: e.evidence.join('; '), notes: e.notes
+    };
+    return head.map(k => csvCell(row[k])).join(',');
+  });
+  download('exposures-' + dayKey(new Date()) + '.csv', head.join(',') + '\n' + rows.join('\n'), 'text/csv');
+  toast('Exposures exported.', 'success');
+}
+function exportSessionsCSV(){
+  if(!state.sessions.length){ toast('No sessions to export yet.', 'warn'); return; }
+  const head = ['date','completedCount','skippedCount','durationPlanned','phasesDone'];
+  const rows = state.sessions.map(s => [csvCell(s.date), s.completedCount, s.skippedCount, s.durationPlanned, csvCell(s.phases.filter(p=>p.status==='done').map(p=>p.name).join('; '))].join(','));
+  download('sessions-' + dayKey(new Date()) + '.csv', head.join(',') + '\n' + rows.join('\n'), 'text/csv');
+  toast('Sessions exported.', 'success');
+}
+function csvCell(v){
+  const s = String(v == null ? '' : v);
+  return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
+}
+
+/* ============================================================================
+   15. VIEW: SETTINGS
+   ========================================================================== */
+/* ============================================================================
+   LADDER EDITOR (lives in Settings). Up/down buttons rather than drag-and-drop
+   by design \u2014 equally capable of satisfying "reorder", far more reliable on
+   touch devices, and there's no drag library to keep this a single file.
+   ========================================================================== */
+function renderLadderEditor(){
+  const ladder = getLadder();
+  const rows = ladder.map((r,i) => {
+    const rec = ladderRecommendation(r.id);
+    const diff = rungDifficulty(r.id);
+    return '<div class="ladder-row">' +
+      '<span class="lr-pos">' + String(i+1).padStart(2,'0') + '</span>' +
+      '<div class="lr-main">' +
+        '<input type="text" class="lr-name" value="' + esc(r.name) + '" data-id="' + esc(r.id) + '" maxlength="300">' +
+        '<span class="lr-diff">' + (diff ? 'Current difficulty ' + diff.avg + '/10 (n=' + diff.n + ')' : 'No attempts logged yet') + '</span>' +
+        (rec ? '<div class="ladder-rec">\uD83D\uDCA1 ' + esc(rec) + '</div>' : '') +
+      '</div>' +
+      '<div class="lr-actions">' +
+        '<button class="btn sm ghost" data-act="up" data-id="' + esc(r.id) + '"' + (i===0?' disabled':'') + ' aria-label="Move up">\u2191</button>' +
+        '<button class="btn sm ghost" data-act="down" data-id="' + esc(r.id) + '"' + (i===ladder.length-1?' disabled':'') + ' aria-label="Move down">\u2193</button>' +
+        '<button class="btn sm danger" data-act="rm" data-id="' + esc(r.id) + '">Remove</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+  return '<div class="card" id="ladderCard">' +
+    '<p style="margin-top:0;color:var(--text-2);font-size:14.5px">Display Order (the number on the left) is manual and stable \u2014 it only changes when you move a rung with the arrows. Current Difficulty is computed from your ratings and can drift on its own; it\u2019s informational, not a position. Recommendations are advisory \u2014 nothing here reorders itself.</p>' +
+    '<div id="ladderRows">' + (rows || '<p class="faint">Your ladder is empty. Add a rung below.</p>') + '</div>' +
+    '<div class="ladder-add"><input type="text" id="ladderNewName" placeholder="New rung name\u2026" maxlength="300"><button class="btn primary sm" id="ladderAddBtn">Add rung</button></div>' +
+  '</div>';
+}
+function wireLadderEditor(view){
+  const card = $('#ladderCard', view);
+  if(!card) return;
+  const refresh = () => { card.outerHTML = renderLadderEditor(); wireLadderEditor(view); };
+  $$('[data-act]', card).forEach(btn => {
+    btn.onclick = () => {
+      const id = btn.dataset.id, act = btn.dataset.act;
+      if(act === 'rm'){
+        confirmModal({
+          title:'Remove this rung?', danger:true, confirmLabel:'Remove',
+          body:'This removes it from your ladder. Exposures already logged against it stay in your tracker and history \u2014 they just won\u2019t point at a live rung anymore.',
+          onConfirm:() => { ladderRemoveRung(id); saveNow(); refresh(); toast('Rung removed.'); }
+        });
+        return;
+      }
+      if(act === 'up') ladderMove(id, -1);
+      else if(act === 'down') ladderMove(id, 1);
+      saveNow(); refresh();
+    };
+  });
+  $$('.lr-name', card).forEach(inp => {
+    inp.onchange = () => {
+      if(ladderRenameRung(inp.dataset.id, inp.value)){ saveNow(); toast('Rung renamed.', 'success'); }
+      else { inp.value = rungName(inp.dataset.id); toast('Name can\u2019t be empty.', 'warn'); }
+    };
+  });
+  const addBtn = $('#ladderAddBtn', card);
+  const newInput = $('#ladderNewName', card);
+  const doAdd = () => {
+    if(ladderAddRung(newInput.value)){ saveNow(); refresh(); toast('Rung added.', 'success'); }
+  };
+  if(addBtn) addBtn.onclick = doAdd;
+  if(newInput) newInput.onkeydown = (e) => { if(e.key === 'Enter'){ e.preventDefault(); doAdd(); } };
+}
+
+function viewSettings(){
+  const st = getStats();
+  const lastBk = state.settings.lastBackupAt ? fmtDateTime(state.settings.lastBackupAt) : 'never';
+  const html =
+    '<h1 class="h-page">\u2699 Settings</h1>' +
+    '<p class="lede">Your data lives only in this browser. Export regularly \u2014 clearing site data or switching devices will otherwise lose it.</p>' +
+
+    '<h2 class="h-section" id="set-ladder">Exposure Ladder</h2>' +
+    renderLadderEditor() +
+
+    '<h2 class="h-section" id="set-export">Export</h2>' +
+    '<div class="card"><p style="margin-top:0">Download a full JSON backup of every session, exposure, reflection and setting. Last backup: <b>' + lastBk + '</b>.</p>' +
+    '<div class="btn-row"><button class="btn primary" data-action="export">Export JSON backup</button>' +
+    '<button class="btn sm" data-action="export-exposure-csv">Exposures CSV</button>' +
+    '<button class="btn sm" data-action="export-sessions-csv">Sessions CSV</button></div></div>' +
+
+    '<h2 class="h-section" id="set-import">Import</h2>' +
+    '<div class="card"><p style="margin-top:0">Restore from a JSON backup. This <b>replaces</b> everything currently stored \u2014 export first if you\u2019re unsure.</p>' +
+    '<input type="file" id="importFile" accept="application/json,.json" style="display:none">' +
+    '<div class="btn-row"><button class="btn" id="importBtn">Choose backup file\u2026</button></div></div>' +
+
+    '<h2 class="h-section" id="set-adjust">Day / Week adjustment</h2>' +
+    '<div class="card"><p style="margin-top:0">These counters are manual so the program never falls out of sync with real life. Set them to wherever you actually are.</p>' +
+    '<div class="inline-fields">' +
+      '<div class="field"><label class="fl">Current day</label><input type="number" id="setDay" min="1" max="100000" value="' + st.day + '"></div>' +
+      '<div class="field"><label class="fl">Current week (1\u201312)</label><input type="number" id="setWeek" min="1" max="12" value="' + st.week + '"></div>' +
+    '</div>' +
+    '<div class="btn-row"><button class="btn primary sm" id="applyAdjust">Apply</button>' +
+    '<button class="btn sm ghost" id="advanceDay">+1 day</button></div></div>' +
+
+    '<h2 class="h-section" id="set-reset">Reset</h2>' +
+    '<div class="card" style="border-color:rgba(241,76,76,.35)"><p style="margin-top:0">Permanently delete all progress and start from a clean state. This cannot be undone \u2014 export a backup first.</p>' +
+    '<div class="btn-row"><button class="btn danger" id="resetBtn">Reset all data</button></div></div>' +
+
+    '<h2 class="h-section">About</h2>' +
+    '<div class="card"><p style="margin:0;color:var(--text-2);font-size:14px">Communication OS v' + CONFIG.VERSION + ' \u00b7 offline, single-file, no accounts. Educational and self-directed \u2014 not a substitute for a licensed speech-language pathologist or therapist. Verify any technique independently.</p></div>';
+  return {
+    file:'settings.json', breadcrumb:['Settings'], html,
+    mount(view){
+      wireLadderEditor(view);
+      const fileInput = $('#importFile', view);
+      const importBtn = $('#importBtn', view);
+      if(importBtn) importBtn.onclick = () => fileInput.click();
+      if(fileInput) fileInput.onchange = () => {
+        const f = fileInput.files && fileInput.files[0];
+        if(!f) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          let parsed;
+          try { parsed = JSON.parse(reader.result); }
+          catch(e){ toast('That file isn\u2019t valid JSON. Pick a Communication OS backup.', 'error'); return; }
+          const valid = validateState(migrateState(parsed));
+          if(!valid){ toast('That JSON isn\u2019t a recognizable backup. Nothing was changed.', 'error'); return; }
+          confirmModal({
+            title:'Replace all data?', danger:true, confirmLabel:'Replace',
+            body:'Importing will overwrite your current sessions, exposures and reflections with the file\u2019s contents.',
+            onConfirm:() => { state = valid; saveNow(); toast('Backup imported.', 'success'); navigate('#/dashboard'); }
+          });
+        };
+        reader.readAsText(f);
+        fileInput.value = '';
+      };
+      const applyAdjust = $('#applyAdjust', view);
+      if(applyAdjust) applyAdjust.onclick = () => {
+        state.settings.currentDay = clamp($('#setDay', view).value, 1, 100000);
+        state.settings.currentWeek = clamp($('#setWeek', view).value, 1, 12);
+        saveNow(); renderStatusBar(); toast('Counters updated.', 'success');
+      };
+      const advanceDay = $('#advanceDay', view);
+      if(advanceDay) advanceDay.onclick = () => {
+        state.settings.currentDay = clamp(state.settings.currentDay + 1, 1, 100000);
+        $('#setDay', view).value = state.settings.currentDay;
+        saveNow(); renderStatusBar(); toast('Day ' + state.settings.currentDay + '.');
+      };
+      const resetBtn = $('#resetBtn', view);
+      if(resetBtn) resetBtn.onclick = () => confirmModal({
+        title:'Reset everything?', danger:true, confirmLabel:'Delete all data',
+        body:'This erases all sessions, exposures, reflections and settings from this browser. There is no undo.',
+        onConfirm:() => { Storage.reset(); state = defaultState(); saveNow(); toast('All data reset.'); navigate('#/dashboard'); }
+      });
+    }
+  };
+}
+
+/* ============================================================================
+   16. SEARCH / COMMAND PALETTE
+   ========================================================================== */
+let SEARCH_INDEX = [];
+function buildSearchIndex(){
+  const idx = [];
+  idx.push({ icon:'\uD83C\uDFE0', title:'Dashboard', context:'Overview', route:'#/dashboard', text:'dashboard stats streak recovery quote' });
+  idx.push({ icon:'\u25B6', title:'Daily Routine', context:"Today's Session", route:'#/session/routine', text:'routine timer breath phases session' });
+  idx.push({ icon:'\uD83E\uDE9C', title:'Current Exposure', context:"Today's Session", route:'#/session/exposure', text:'exposure ladder log anxiety rung attempt' });
+  idx.push({ icon:'\uD83D\uDCC8', title:'Tracker', context:'Progress', route:'#/progress/tracker', text:'tracker exposure log table history' });
+  idx.push({ icon:'\uD83D\uDCCA', title:'Analytics', context:'Progress', route:'#/progress/analytics', text:'analytics charts anxiety recovery trend' });
+  idx.push({ icon:'\u2699', title:'Settings', context:'App', route:'#/settings', text:'settings export import reset backup day week' });
+  MODULES.forEach(m => idx.push({ icon:'\uD83D\uDCDA', title:m.num + '. ' + m.title, context:'Learn', route:'#/learn/m'+m.num, text:(m.title + ' ' + m.subtitle + ' ' + m.objective + ' ' + m.why).toLowerCase() }));
+  FRAMEWORKS.forEach(f => idx.push({ icon:'\uD83E\uDDE9', title:f.name, context:'Frameworks', route:'#/reference/frameworks', text:(f.name + ' ' + f.steps.map(s=>s[0]+' '+s[1]).join(' ')).toLowerCase() }));
+  ROLE_MODELS.forEach(r => idx.push({ icon:'\uD83C\uDFAD', title:r.name, context:'Role Models', route:'#/reference/rolemodels', text:(r.name + ' ' + r.desc).toLowerCase() }));
+  RECOVERY.scenarios.forEach(s => idx.push({ icon:'\uD83D\uDEDF', title:s.sit, context:'Recovery', route:'#/reference/recovery', text:(s.sit + ' ' + s.tree.join(' ')).toLowerCase() }));
+  FAQ.forEach(f => idx.push({ icon:'\u2753', title:f.q, context:'FAQ', route:'#/reference/faq', text:(f.q + ' ' + f.a).toLowerCase() }));
+  SEARCH_INDEX = idx;
+}
+function runSearch(q){
+  q = q.trim().toLowerCase();
+  if(!q) return [];
+  const terms = q.split(/\s+/);
+  return SEARCH_INDEX.map(it => {
+    const hay = (it.title + ' ' + it.context + ' ' + it.text).toLowerCase();
+    let score = 0;
+    for(const t of terms){
+      if(!hay.includes(t)) return null;
+      if(it.title.toLowerCase().includes(t)) score += 3;
+      if(it.context.toLowerCase().includes(t)) score += 1;
+      score += 1;
+    }
+    return { it, score };
+  }).filter(Boolean).sort((a,b)=> b.score - a.score).slice(0, 20).map(x => x.it);
+}
+
+let cmdkSel = 0, cmdkResults = [];
+function openCmdk(seed){
+  const root = $('#cmdkRoot');
+  root.innerHTML =
+    '<div class="cmdk-back" id="cmdkBack"><div class="cmdk">' +
+      '<div class="cmdk-input"><input type="text" id="cmdkInput" placeholder="Search modules, frameworks, recovery, FAQ\u2026" autocomplete="off" spellcheck="false"></div>' +
+      '<div class="cmdk-results" id="cmdkResults"></div>' +
+      '<div class="cmdk-foot"><span><span class="kbd">\u2191\u2193</span> navigate</span><span><span class="kbd">\u21B5</span> open</span><span><span class="kbd">esc</span> close</span></div>' +
+    '</div></div>';
+  const input = $('#cmdkInput');
+  input.value = seed || '';
+  const close = () => { root.innerHTML = ''; };
+  $('#cmdkBack').onclick = (e) => { if(e.target.id === 'cmdkBack') close(); };
+  const update = () => {
+    cmdkResults = runSearch(input.value);
+    cmdkSel = 0;
+    renderCmdkResults();
+  };
+  input.oninput = update;
+  input.onkeydown = (e) => {
+    if(e.key === 'Escape'){ close(); }
+    else if(e.key === 'ArrowDown'){ e.preventDefault(); cmdkSel = Math.min(cmdkResults.length-1, cmdkSel+1); renderCmdkResults(); }
+    else if(e.key === 'ArrowUp'){ e.preventDefault(); cmdkSel = Math.max(0, cmdkSel-1); renderCmdkResults(); }
+    else if(e.key === 'Enter'){ const r = cmdkResults[cmdkSel]; if(r){ close(); navigate(r.route); } }
+  };
+  update();
+  setTimeout(() => input.focus(), 20);
+}
+function renderCmdkResults(){
+  const box = $('#cmdkResults');
+  if(!box) return;
+  const inputVal = ($('#cmdkInput')||{}).value || '';
+  if(!inputVal.trim()){ box.innerHTML = '<div class="cmdk-empty">Type to search across every module, framework, and reference.</div>'; return; }
+  if(!cmdkResults.length){ box.innerHTML = '<div class="cmdk-empty">No matches. Try a different word \u2014 like "breath", "interrupt", or "ladder".</div>'; return; }
+  box.innerHTML = cmdkResults.map((r,i) =>
+    '<div class="cmdk-row ' + (i === cmdkSel ? 'sel' : '') + '" data-i="' + i + '"><span class="ico">' + r.icon + '</span>' +
+    '<div class="txt"><div class="t">' + esc(r.title) + '</div><div class="c">' + esc(r.context) + '</div></div></div>'
+  ).join('');
+  $$('#cmdkResults .cmdk-row').forEach(row => {
+    row.onclick = () => { const r = cmdkResults[Number(row.dataset.i)]; if(r){ $('#cmdkRoot').innerHTML = ''; navigate(r.route); } };
+  });
+}
+
+/* ============================================================================
+   17. INIT
+   ========================================================================== */
+function handleDelegatedClick(e){
+  const routeEl = e.target.closest('[data-route]');
+  if(routeEl){ navigate(routeEl.dataset.route); return; }
+  const actEl = e.target.closest('[data-action]');
+  if(actEl){
+    const a = actEl.dataset.action;
+    if(a === 'start-session') navigate('#/session/routine');
+    else if(a === 'export'){ Storage.export(state); state.settings.lastBackupAt = todayISO(); saveNow(); toast('Backup exported.', 'success'); }
+    else if(a === 'export-exposure-csv') exportExposureCSV();
+    else if(a === 'export-sessions-csv') exportSessionsCSV();
+  }
+}
+function handleNavToggle(e){
+  const head = e.target.closest('[data-toggle]');
+  if(!head) return;
+  const key = head.dataset.toggle;
+  collapsed[key] = !collapsed[key];
+  buildNav();
+}
+
+function init(){
+  state = Storage.load();
+  buildSearchIndex();
+  buildNav();
+
+  // Global listeners (attached once)
+  window.addEventListener('hashchange', render);
+
+  document.addEventListener('click', (e) => {
+    handleNavToggle(e);
+    handleDelegatedClick(e);
+  });
+
+  const hb = $('#hamburger');
+  if(hb) hb.onclick = () => $('#app').classList.toggle('nav-open');
+  const scrim = $('#scrim');
+  if(scrim) scrim.onclick = () => $('#app').classList.remove('nav-open');
+
+  const cmdkOpen = $('#cmdkOpen');
+  if(cmdkOpen) cmdkOpen.onclick = () => openCmdk('');
+  const sideSearch = $('#sideSearch');
+  if(sideSearch){
+    sideSearch.addEventListener('focus', () => { sideSearch.blur(); openCmdk(''); });
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')){ e.preventDefault(); openCmdk(''); }
+  });
+
+  if(!location.hash) location.hash = '#/dashboard';
+  render();
+}
+
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+
+</script>
+</body>
+</html>

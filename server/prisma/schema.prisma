@@ -1,0 +1,113 @@
+// ============================================================================
+// COMMUNICATION OS — database schema
+//
+// This maps 1:1 onto the state shape that already works in the offline HTML
+// app (see server/src/data/*.json, extracted directly from that app). Nothing
+// here is a redesign of the data model — it's the same shapes, relational.
+//
+// What's IN the database: everything that's personal and grows over time —
+// sessions, the ladder (seeded, then user-editable), exposure logs,
+// reflections, module-completion timestamps, settings.
+//
+// What's NOT in the database: module content, frameworks, role models,
+// recovery scenarios, FAQ, routine phase instructions. That's static
+// reference content, identical for every load — it's served straight from
+// server/src/data/content.ts as JSON, not stored per-row. Putting static
+// copy in a database is complexity with no payoff for a single-user app.
+// ============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// A single completed (or partially completed) daily routine.
+// `phases` mirrors the exact shape already used in the HTML app:
+// [{ id, name, status: 'done' | 'skip' }, ...] — kept as JSON rather than
+// a child table because it's a small, fixed-size, write-once list that's
+// never queried by its internal fields, only displayed.
+model Session {
+  id              String   @id @default(cuid())
+  date            DateTime @db.Date
+  type            String   @default("routine")
+  phases          Json
+  completedCount  Int
+  skippedCount    Int
+  durationPlanned Int
+  notes           String   @default("")
+  createdAt       DateTime @default(now())
+
+  @@index([date])
+}
+
+// The exposure ladder. Seeded from the same 14 defaults the HTML app ships
+// with, then fully user-editable (add/rename/remove/reorder) — this is the
+// part of the frozen spec that mattered most: `order` is the stable,
+// manual Display Order. It does NOT reflect difficulty and is never
+// rewritten automatically by the app — only by the user dragging/moving
+// a rung. Current difficulty is *computed* from ExposureLog rows, not
+// stored on the rung itself, so it can never drift out of sync with reality.
+model LadderRung {
+  id        String        @id @default(cuid())
+  name      String
+  order     Int
+  createdAt DateTime      @default(now())
+  logs      ExposureLog[]
+
+  @@index([order])
+}
+
+// One structured exposure attempt. Field names match the frozen spec
+// exactly, on purpose — this is the richest, most information-dense part
+// of the whole app, and the one place where matching the original schema
+// verbatim (rather than "improving" it) actually matters.
+model ExposureLog {
+  id               String     @id @default(cuid())
+  date             DateTime   @db.Date
+  rungId           String
+  rung             LadderRung @relation(fields: [rungId], references: [id], onDelete: Restrict)
+  target           String
+  predictedAnxiety Int
+  actualBefore     Int
+  actualAfter      Int
+  difference       Int
+  freezeCount      Int
+  englishOnly      Boolean
+  recovered        Boolean
+  recoveryMethod   String     @default("")
+  evidence         String[] // Postgres native text array — one row per piece of evidence
+  notes            String     @default("")
+  createdAt        DateTime   @default(now())
+
+  @@index([rungId, date])
+}
+
+// One free-text reflection per module (module numbers are static content,
+// defined in content.ts, not a foreign key — there's nothing to join against
+// that changes, so a plain int is simpler and correct here).
+model Reflection {
+  moduleNum Int      @id
+  text      String
+  updatedAt DateTime @updatedAt
+}
+
+model ModuleCompletion {
+  moduleNum   Int      @id
+  completedAt DateTime @default(now())
+}
+
+// Single row, always id = 1. Deliberately not a multi-user table — this is
+// a personal tool, and adding accounts/auth for a single lifelong user would
+// be complexity serving no one. If that ever changes, this is the seam:
+// add a userId column and a real auth layer, don't redesign around it now.
+model Settings {
+  id            Int       @id @default(1)
+  currentDay    Int       @default(1)
+  currentWeek   Int       @default(1)
+  lastBackupAt  DateTime?
+}

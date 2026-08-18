@@ -1,0 +1,60 @@
+{
+  "DEFAULT_LADDER": [
+    {
+      "id": "r1",
+      "name": "Order food in English (scripted)"
+    },
+    {
+      "id": "r2",
+      "name": "Ask a stranger a directional question"
+    },
+    {
+      "id": "r3",
+      "name": "Give a genuine compliment to a stranger"
+    },
+    {
+      "id": "r4",
+      "name": "Small talk with a cashier, 3+ exchanges"
+    },
+    {
+      "id": "r5",
+      "name": "Join a group conversation, one comment"
+    },
+    {
+      "id": "r6",
+      "name": "One-on-one conversation with a woman"
+    },
+    {
+      "id": "r7",
+      "name": "Real conversation using answer-first structure"
+    },
+    {
+      "id": "r8",
+      "name": "Rhetorical pause in a real conversation"
+    },
+    {
+      "id": "r9",
+      "name": "Real interruption, handled without a switch"
+    },
+    {
+      "id": "r10",
+      "name": "Public/group moment with full nonverbal congruence"
+    },
+    {
+      "id": "r11",
+      "name": "3–5 minute talk to a real audience"
+    },
+    {
+      "id": "r12",
+      "name": "Real adversarial conversation"
+    },
+    {
+      "id": "r13",
+      "name": "Full-stack week: talk + 2 new conversations + adversarial + cold call"
+    },
+    {
+      "id": "r14",
+      "name": "Capstone talk to your largest real audience"
+    }
+  ]
+}

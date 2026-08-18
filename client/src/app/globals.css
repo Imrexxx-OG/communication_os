@@ -1,0 +1,96 @@
+:root {
+  --bg: #0b0c10;
+  --surface: #16181f;
+  --surface-2: #1b1e27;
+  --border: rgba(255, 255, 255, 0.08);
+  --text: #e8eaf0;
+  --text-2: #a5aab8;
+  --text-3: #6c7280;
+  --accent: #4ec9b0;
+  --accent-2: #7c9dff;
+  --success: #57c98a;
+  --warning: #e8c37e;
+  --error: #f0736f;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+a { color: inherit; text-decoration: none; }
+
+.shell {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: 100vh;
+}
+
+.sidenav {
+  background: #0e1014;
+  border-right: 1px solid var(--border);
+  padding: 20px 12px;
+}
+
+.sidenav .brand {
+  font-weight: 700;
+  padding: 8px 10px 20px;
+  color: var(--text);
+}
+.sidenav .brand span { color: var(--accent); }
+
+.sidenav a {
+  display: block;
+  padding: 9px 12px;
+  border-radius: 8px;
+  color: var(--text-2);
+  font-size: 14.5px;
+  margin-bottom: 2px;
+}
+.sidenav a:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+
+.main { padding: 32px 40px 80px; max-width: 960px; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 22px;
+  margin-bottom: 14px;
+}
+
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 24px; }
+
+.stat-label { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); margin-bottom: 8px; }
+.stat-value { font-size: 26px; font-weight: 700; }
+
+.btn {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 9px 16px;
+  border-radius: 9px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.btn:hover { border-color: rgba(255,255,255,0.2); }
+.btn.solid { background: var(--accent); color: #05201a; border-color: var(--accent); font-weight: 650; }
+.btn.danger { color: var(--error); border-color: rgba(240,115,111,0.4); }
+
+input, textarea, select {
+  background: #10121a;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+h1 { font-size: 24px; margin: 0 0 6px; }
+h2 { font-size: 16px; margin: 0 0 10px; }
+p.lede { color: var(--text-2); margin: 0 0 20px; max-width: 68ch; }

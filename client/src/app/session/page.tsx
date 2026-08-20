@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { todayLocalDate } from "@/lib/date";
 import type { RoutinePhase, SessionPhase } from "@/lib/types";
+import { ListSkeleton } from "@/components/Skeleton";
 
 export default function SessionPage() {
   const [phases, setPhases] = useState<RoutinePhase[] | null>(null);
@@ -56,7 +57,7 @@ export default function SessionPage() {
       setCurrent(next);
       setRemaining(phases[next].minutes * 60);
     } else {
-      setCurrent(current + 1); // past the last phase -> show the save form
+      setCurrent(current + 1);
     }
   }
 
@@ -77,14 +78,18 @@ export default function SessionPage() {
     setSaved(true);
   }
 
-  if (!phases) return <p className="lede">Loading&hellip;</p>;
+  if (!phases) return <ListSkeleton rows={2} />;
 
   if (saved) {
     return (
       <div className="card">
         <h1>Session saved</h1>
-        <p className="lede">{log.filter((l) => l.status === "done").length} of {phases.length} phases completed.</p>
-        <a href="/dashboard" className="btn solid">Back to dashboard</a>
+        <p className="lede">
+          {log.filter((l) => l.status === "done").length} of {phases.length} phases completed.
+        </p>
+        <a href="/dashboard" className="btn solid">
+          Back to dashboard
+        </a>
       </div>
     );
   }
@@ -92,40 +97,88 @@ export default function SessionPage() {
   if (current >= phases.length) {
     return (
       <div className="card">
-        <h1>Routine complete — save it?</h1>
+        <h1>Routine complete &mdash; save it?</h1>
         <p className="lede">
-          {log.filter((l) => l.status === "done").length} completed, {log.filter((l) => l.status === "skip").length} skipped.
+          {log.filter((l) => l.status === "done").length} completed,{" "}
+          {log.filter((l) => l.status === "skip").length} skipped.
         </p>
-        <button className="btn solid" onClick={saveSession}>Save session</button>
+        <button className="btn solid" onClick={saveSession}>
+          Save session
+        </button>
       </div>
     );
   }
 
   const phase = phases[current];
+  const total = phase.minutes * 60;
+  const pct = total ? remaining / total : 0;
+  const R = 84;
+  const CIRC = 2 * Math.PI * R;
+  const offset = CIRC - Math.max(0, Math.min(1, pct)) * CIRC;
   const mm = String(Math.floor(remaining / 60)).padStart(2, "0");
   const ss = String(remaining % 60).padStart(2, "0");
 
   return (
     <>
       <h1>Today&rsquo;s Session</h1>
-      <p className="lede">Phase {current + 1} of {phases.length}</p>
+      <p className="lede">
+        Phase {current + 1} of {phases.length}
+      </p>
 
-      <div className="card">
-        <h2>{phase.name} — {phase.minutes} min</h2>
-        <ul style={{ color: "var(--text-2)", fontSize: 14.5, lineHeight: 1.7 }}>
-          {phase.instructions.map((i, idx) => <li key={idx}>{i}</li>)}
-        </ul>
-        <p style={{ fontSize: 13, color: "var(--text-3)" }}><b>Common mistake:</b> {phase.mistake}</p>
-        <p style={{ fontSize: 13, color: "var(--text-3)" }}><b>Success cue:</b> {phase.cue}</p>
+      <div className="phase-card">
+        <div className="phase-head">
+          <div className="phase-idx">{current + 1}</div>
+          <div className="phase-title">{phase.name}</div>
+          <div className="phase-dur">{phase.minutes} min</div>
+        </div>
+        <div className="phase-body">
+          <ul className="phase-instructions">
+            {phase.instructions.map((i, idx) => (
+              <li key={idx}>{i}</li>
+            ))}
+          </ul>
+          <p style={{ fontSize: 12.5, color: "var(--text-3)", marginBottom: 4 }}>
+            <b style={{ color: "var(--text-2)" }}>Common mistake:</b> {phase.mistake}
+          </p>
+          <p style={{ fontSize: 12.5, color: "var(--text-3)", marginBottom: 20 }}>
+            <b style={{ color: "var(--text-2)" }}>Success cue:</b> {phase.cue}
+          </p>
 
-        <div style={{ fontSize: 44, fontWeight: 700, textAlign: "center", margin: "18px 0" }}>{mm}:{ss}</div>
+          <div className="ring-wrap">
+            <svg viewBox="0 0 188 188">
+              <circle cx="94" cy="94" r={R} className="ring-track" strokeWidth="10" />
+              <circle
+                cx="94"
+                cy="94"
+                r={R}
+                className="ring-fill"
+                strokeWidth="10"
+                strokeDasharray={CIRC}
+                strokeDashoffset={offset}
+              />
+            </svg>
+            <div className="ring-clock">
+              {mm}:{ss}
+            </div>
+          </div>
 
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <button className="btn" onClick={start}>Start</button>
-          <button className="btn" onClick={pause}>Pause</button>
-          <button className="btn" onClick={reset}>Reset</button>
-          <button className="btn" onClick={() => advance("skip")}>Skip</button>
-          <button className="btn solid" onClick={() => advance("done")}>Complete</button>
+          <div className="phase-btns">
+            <button className="btn" onClick={start}>
+              Start
+            </button>
+            <button className="btn" onClick={pause}>
+              Pause
+            </button>
+            <button className="btn" onClick={reset}>
+              Reset
+            </button>
+            <button className="btn" onClick={() => advance("skip")}>
+              Skip
+            </button>
+            <button className="btn solid" onClick={() => advance("done")}>
+              Complete
+            </button>
+          </div>
         </div>
       </div>
     </>

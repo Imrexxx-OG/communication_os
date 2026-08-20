@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { prisma } from "../db";
 import { putSettingsSchema } from "../lib/validate";
+import { asyncHandler } from "../lib/asyncHandler";
 
 export const settingsRouter = Router();
 
@@ -12,24 +13,31 @@ async function getOrCreateSettings() {
   });
 }
 
-settingsRouter.get("/", async (_req, res) => {
-  res.json(await getOrCreateSettings());
-});
+settingsRouter.get(
+  "/",
+  asyncHandler(async (_req, res) => {
+    res.json(await getOrCreateSettings());
+  })
+);
 
-settingsRouter.put("/", async (req, res) => {
-  const parsed = putSettingsSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: "Invalid settings", details: parsed.error.flatten() });
+settingsRouter.put(
+  "/",
+  asyncHandler(async (req, res) => {
+    const parsed = putSettingsSchema.safeParse(req.body);
+    if (!parsed.success)
+      return res.status(400).json({ error: "Invalid settings", details: parsed.error.flatten() });
 
-  await getOrCreateSettings();
-  const updated = await prisma.settings.update({
-    where: { id: 1 },
-    data: {
-      ...(parsed.data.currentDay !== undefined && { currentDay: parsed.data.currentDay }),
-      ...(parsed.data.currentWeek !== undefined && { currentWeek: parsed.data.currentWeek }),
-      ...(parsed.data.lastBackupAt !== undefined && {
-        lastBackupAt: parsed.data.lastBackupAt ? new Date(parsed.data.lastBackupAt) : null,
-      }),
-    },
-  });
-  res.json(updated);
-});
+    await getOrCreateSettings();
+    const updated = await prisma.settings.update({
+      where: { id: 1 },
+      data: {
+        ...(parsed.data.currentDay !== undefined && { currentDay: parsed.data.currentDay }),
+        ...(parsed.data.currentWeek !== undefined && { currentWeek: parsed.data.currentWeek }),
+        ...(parsed.data.lastBackupAt !== undefined && {
+          lastBackupAt: parsed.data.lastBackupAt ? new Date(parsed.data.lastBackupAt) : null,
+        }),
+      },
+    });
+    res.json(updated);
+  })
+);

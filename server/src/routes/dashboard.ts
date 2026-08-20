@@ -1,59 +1,70 @@
 import { Router } from "express";
 import { prisma } from "../db";
 import { calcStreak } from "../lib/streak";
+import { asyncHandler } from "../lib/asyncHandler";
 
 export const dashboardRouter = Router();
 
-dashboardRouter.get("/", async (_req, res) => {
-  const [sessions, exposureLogs, ladderCount, rungsWithLogs, settings] = await Promise.all([
-    prisma.session.findMany({ select: { date: true } }),
-    prisma.exposureLog.findMany({
-      select: { date: true, actualBefore: true, actualAfter: true, recovered: true, freezeCount: true, evidence: true },
-    }),
-    prisma.ladderRung.count(),
-    prisma.exposureLog.findMany({ select: { rungId: true }, distinct: ["rungId"] }),
-    prisma.settings.upsert({ where: { id: 1 }, update: {}, create: { id: 1 } }),
-  ]);
+dashboardRouter.get(
+  "/",
+  asyncHandler(async (_req, res) => {
+    const [sessions, exposureLogs, ladderCount, rungsWithLogs, settings] = await Promise.all([
+      prisma.session.findMany({ select: { date: true } }),
+      prisma.exposureLog.findMany({
+        select: {
+          date: true,
+          actualBefore: true,
+          actualAfter: true,
+          recovered: true,
+          freezeCount: true,
+          evidence: true,
+        },
+      }),
+      prisma.ladderRung.count(),
+      prisma.exposureLog.findMany({ select: { rungId: true }, distinct: ["rungId"] }),
+      prisma.settings.upsert({ where: { id: 1 }, update: {}, create: { id: 1 } }),
+    ]);
 
-  const streak = calcStreak(sessions.map((s: { date: Date }) => s.date));
+    const streak = calcStreak(sessions.map((s: { date: Date }) => s.date));
 
-  // Recovery rate: of logs where a freeze actually happened, how many were
-  // recovered without switching language. A log with freezeCount 0 isn't a
-  // "recovery" data point at all — nothing to recover from.
-  const freezeEvents = exposureLogs.filter((l: { freezeCount: number }) => l.freezeCount > 0);
-  const recoveryRate = freezeEvents.length
-    ? Math.round(
-        (freezeEvents.filter((l: { recovered: boolean }) => l.recovered).length / freezeEvents.length) * 100
-      )
-    : null;
+    // Recovery rate: of logs where a freeze actually happened, how many were
+    // recovered without switching language. A log with freezeCount 0 isn't a
+    // "recovery" data point at all — nothing to recover from.
+    const freezeEvents = exposureLogs.filter((l: { freezeCount: number }) => l.freezeCount > 0);
+    const recoveryRate = freezeEvents.length
+      ? Math.round(
+          (freezeEvents.filter((l: { recovered: boolean }) => l.recovered).length / freezeEvents.length) * 100
+        )
+      : null;
 
-  // Evidence trend — last 30 days, count of evidence[] entries per day.
-  // This is the "Evidence Collected Today" number, extended into a trend
-  // line instead of a one-off. Days with zero logs still appear, at 0 —
-  // a flat trend is real information too, not a gap to hide.
-  const evidenceTrend = buildDailySeries(30, exposureLogs, (dayLogs) =>
-    dayLogs.reduce((sum, l) => sum + l.evidence.length, 0)
-  );
+    // Evidence trend — last 30 days, count of evidence[] entries per day.
+    // This is the "Evidence Collected Today" number, extended into a trend
+    // line instead of a one-off. Days with zero logs still appear, at 0 —
+    // a flat trend is real information too, not a gap to hide.
+    const evidenceTrend = buildDailySeries(30, exposureLogs, (dayLogs) =>
+      dayLogs.reduce((sum, l) => sum + l.evidence.length, 0)
+    );
 
-  // Anxiety trend — average before/after per day, last 30 days.
-  const anxietyTrend = buildDailySeries(30, exposureLogs, (dayLogs) => ({
-    avgBefore: avg(dayLogs.map((l) => l.actualBefore)),
-    avgAfter: avg(dayLogs.map((l) => l.actualAfter)),
-  }));
+    // Anxiety trend — average before/after per day, last 30 days.
+    const anxietyTrend = buildDailySeries(30, exposureLogs, (dayLogs) => ({
+      avgBefore: avg(dayLogs.map((l) => l.actualBefore)),
+      avgAfter: avg(dayLogs.map((l) => l.actualAfter)),
+    }));
 
-  res.json({
-    streak,
-    currentDay: settings.currentDay,
-    currentWeek: settings.currentWeek,
-    totalSessions: sessions.length,
-    totalExposureLogs: exposureLogs.length,
-    ladderProgress: { totalRungs: ladderCount, rungsWithLogs: rungsWithLogs.length },
-    recoveryRate,
-    evidenceTrend,
-    anxietyTrend,
-    lastBackupAt: settings.lastBackupAt,
-  });
-});
+    res.json({
+      streak,
+      currentDay: settings.currentDay,
+      currentWeek: settings.currentWeek,
+      totalSessions: sessions.length,
+      totalExposureLogs: exposureLogs.length,
+      ladderProgress: { totalRungs: ladderCount, rungsWithLogs: rungsWithLogs.length },
+      recoveryRate,
+      evidenceTrend,
+      anxietyTrend,
+      lastBackupAt: settings.lastBackupAt,
+    });
+  })
+);
 
 function avg(nums: number[]): number | null {
   if (!nums.length) return null;

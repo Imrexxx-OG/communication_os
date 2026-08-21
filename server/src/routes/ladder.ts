@@ -133,6 +133,23 @@ ladderRouter.put(
       return res.status(400).json({ error: "Invalid reorder payload", details: parsed.error.flatten() });
 
     const { orderedIds } = parsed.data;
+
+    // Confirm orderedIds is exactly the current set of rungs -- no ids
+    // that don't exist, and none missing. A partial or stale list would
+    // otherwise leave the rungs it omits with a leftover `order` value,
+    // silently producing duplicate/inconsistent ordering.
+    const currentRungs = await prisma.ladderRung.findMany({ select: { id: true } });
+    const currentIds = new Set(currentRungs.map((r) => r.id));
+    const requestedIds = new Set(orderedIds);
+    const missing = [...currentIds].filter((id) => !requestedIds.has(id));
+    const unexpected = [...requestedIds].filter((id) => !currentIds.has(id));
+    if (missing.length || unexpected.length) {
+      return res.status(400).json({
+        error: "orderedIds must include every current rung exactly once, and no others.",
+        details: { missing, unexpected },
+      });
+    }
+
     const newOrderById = new Map(orderedIds.map((id, index) => [id, index]));
     const idsInLockOrder = [...orderedIds].sort(); // fixed order, same for every concurrent request
 

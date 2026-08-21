@@ -95,7 +95,7 @@ export default function LadderPage() {
       <h1>Exposure Ladder</h1>
       <p className="lede">
         Display order is yours to set and won&rsquo;t reshuffle on its own. Current difficulty is
-        computed from your logged anxiety-after ratings &mdash; it updates itself, but never
+        computed from your logged anxiety-after ratings. It updates itself, but never
         moves the rung for you.
       </p>
 
